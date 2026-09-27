@@ -1,0 +1,4 @@
+flask
+pyserial
+shapely
+pynmea2
