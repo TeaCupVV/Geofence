@@ -505,6 +505,22 @@ body.menu-active #workspaceSidebar{display:none}
 #coordinatesPanel textarea{height:90px!important}
 @media(max-width:700px){#workspaceSidebar{top:auto!important;bottom:8px!important}#coordinatesPanel textarea{height:65px!important}}
 </style>
+<style>
+/* Vertical, one-step-at-a-time toolbar based on the handwritten interaction notes. */
+#createPanel .controls{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:9px!important}
+#createPanel .controls button{width:100%!important;min-height:44px!important;text-align:left!important}
+.bound-step-buttons,.utility-step-buttons{display:flex!important;flex-direction:column!important;gap:9px!important}
+#editorStepBack{display:none;width:100%;min-height:40px;background:#1a2b40;color:#edf5ff;border:1px solid #435873;border-radius:9px;text-align:left;padding:10px 12px}
+#createPanel.step-outer #editorStepBack,#createPanel.step-inner #editorStepBack,#createPanel.step-coordinates #editorStepBack,#createPanel.step-clear #editorStepBack{display:block}
+#createPanel.step-outer .bound-step-buttons button:not(#newOuterButton),#createPanel.step-inner .bound-step-buttons button:not(#newInnerButton){display:none!important}
+#createPanel.step-outer .utility-step-buttons,#createPanel.step-inner .utility-step-buttons{display:none!important}
+#createPanel.step-outer #finishButton,#createPanel.step-inner #finishButton,#createPanel.step-outer #locationButton,#createPanel.step-inner #locationButton{display:block!important}
+#createPanel.step-coordinates .controls>*:not(#editorStepBack),#createPanel.step-clear .controls>*:not(#editorStepBack){display:none!important}
+#createPanel.step-coordinates #coordinatesPanel{display:grid!important}
+#createPanel.step-clear #clearStepOptions{display:grid!important}
+#coordinatesPanel[hidden],#clearStepOptions[hidden]{display:none!important}
+#workspaceSidebar{top:12px!important}
+</style>
 </head>
 
 <body class="welcome-active">
@@ -565,6 +581,8 @@ body.menu-active #workspaceSidebar{display:none}
 </div>
 
 <div class="controls" id="editorControls">
+    <button id="editorStepBack" type="button">← Back to tools</button>
+    
     <div class="bound-step-buttons">
       <button class="outer-btn" id="newOuterButton">Outer Bound</button>
       <button class="inner-btn" id="newInnerButton">Inner Bound</button>
@@ -781,6 +799,30 @@ body.menu-active #workspaceSidebar{display:none}
     // ==========================================
     // STATUS
     // ==========================================
+
+    // Switch the toolbar into focused sub-screens, keeping only the selected
+    // tool at the top with a back control, as shown in the notebook sketches.
+    const createPanelElement = document.getElementById("createPanel");
+    function setEditorStep(step) {
+        createPanelElement.classList.remove("step-outer","step-inner","step-coordinates","step-clear");
+        if (step) createPanelElement.classList.add("step-" + step);
+        if (step === "coordinates") {
+            document.getElementById("coordinatesPanel").hidden = false;
+            updateCoordinates();
+        }
+        if (step === "clear") document.getElementById("clearStepOptions").hidden = false;
+    }
+    document.getElementById("editorStepBack").addEventListener("click", () => {
+        setEditorStep(null);
+        document.getElementById("coordinatesPanel").hidden = true;
+        document.getElementById("clearStepOptions").hidden = true;
+        document.getElementById("toggleCoordinatesButton").textContent = "Show Coordinates";
+        document.getElementById("toggleClearButton").textContent = "Clear";
+    });
+    document.getElementById("newOuterButton").addEventListener("click", () => setEditorStep("outer"));
+    document.getElementById("newInnerButton").addEventListener("click", () => setEditorStep("inner"));
+    document.getElementById("toggleCoordinatesButton").addEventListener("click", () => setEditorStep("coordinates"));
+    document.getElementById("toggleClearButton").addEventListener("click", () => setEditorStep("clear"));
 
     document.getElementById("toggleCoordinatesButton").addEventListener("click", function () {
         const panel = document.getElementById("coordinatesPanel");
