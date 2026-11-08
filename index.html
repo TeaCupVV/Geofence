@@ -467,6 +467,7 @@ header{min-height:86px}
     <div class="load-actions">
       <button id="previewTrackButton" class="secondary-action" disabled>Preview Track</button>
       <button id="loadSelectedTrackButton" class="primary-action" disabled>Load Into Editor</button>
+      <button id="deleteSelectedTrackButton" class="delete-btn" disabled>Delete Selected Track</button>
       <button id="sendSelectedTrackButton" class="send-action" disabled>Send Track to Car</button>
     </div>
     <p class="panel-note">Sending a track updates the course the car is set to use. You’ll be asked to confirm first.</p>
@@ -1977,6 +1978,7 @@ header{min-height:86px}
     const previewTrackButton = document.getElementById("previewTrackButton");
     const loadSelectedTrackButton = document.getElementById("loadSelectedTrackButton");
     const sendSelectedTrackButton = document.getElementById("sendSelectedTrackButton");
+    const deleteSelectedTrackButton = document.getElementById("deleteSelectedTrackButton");
 
     function clearTrackPreview() {
         previewLayers.forEach(layer => map.removeLayer(layer));
@@ -2040,6 +2042,7 @@ header{min-height:86px}
         previewTrackButton.disabled = !hasSelection;
         loadSelectedTrackButton.disabled = !hasSelection;
         sendSelectedTrackButton.disabled = !hasSelection || !db;
+        deleteSelectedTrackButton.disabled = !hasSelection || !db;
     }
 
     async function refreshSavedTrackPanel() {
@@ -2090,6 +2093,23 @@ header{min-height:86px}
     }
 
     previewTrackButton.addEventListener("click", previewSelectedTrack);
+    deleteSelectedTrackButton.addEventListener("click", async () => {
+        const track = getSelectedSavedTrack();
+        if (!track) return;
+        if (!window.confirm('Delete "' + track.name + '" permanently?')) return;
+        deleteSelectedTrackButton.disabled = true;
+        const { data, error } = await db.from("tracks").delete().eq("id", track.id).select("id");
+        if (error || !data || data.length === 0) {
+            showToast("Could not delete track: " + (error ? error.message : "database did not confirm deletion"), "error");
+            updateLoadActions();
+            return;
+        }
+        if (currentTrackName === track.name) currentTrackName = "";
+        selectedSavedTrackId = null;
+        clearTrackPreview();
+        showToast('Deleted "' + track.name + '".', "success");
+        await refreshSavedTrackPanel();
+    });
     loadSelectedTrackButton.addEventListener("click", loadSelectedTrackIntoEditor);
     sendSelectedTrackButton.addEventListener("click", async () => {
         const track = getSelectedSavedTrack();
