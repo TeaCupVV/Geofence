@@ -906,7 +906,7 @@ body.create-active #finishButton[hidden]{display:none!important}
     }
     document.getElementById("editorStepBack").addEventListener("click", () => {
         const activeBoundStep = createPanelElement.classList.contains("step-outer") || createPanelElement.classList.contains("step-inner");
-        if (activeBoundStep && currentBound && !currentBound.finished) {
+        if (activeBoundStep && currentBound) {
             const discard = window.confirm("Are you sure you want to go back? This bound will not be saved.\n\nChoose OK to discard its pins and return to the Create Track tools, or Cancel to keep working on this bound.");
             if (!discard) return;
             discardActiveBound();
