@@ -664,8 +664,8 @@ body.create-active #finishButton[hidden]{display:none!important}
       <button class="step-toggle-btn" id="toggleClearButton" type="button" aria-expanded="false">Clear</button>
     </div>
     <div class="clear-step-options" id="clearStepOptions" hidden>
-      <button class="clear-outer-btn" id="clearOuterButton">Clear Outer Bounds</button>
-      <button class="clear-inner-btn" id="clearInnerButton">Clear Inner Bounds</button>
+      <button class="clear-outer-btn" id="clearOuterButton">Clear Outer Bound</button>
+      <button class="clear-inner-btn" id="clearInnerButton">Clear Inner Bound</button>
       <button class="clear-all-btn" id="clearAllButton">Clear Everything</button>
     </div>
 </div>
@@ -1523,9 +1523,9 @@ body.create-active #finishButton[hidden]{display:none!important}
 
             if (currentType === "outer") {
                 currentBound = null;
+                currentType = null;
             }
-
-
+            setEditorStep(null);
             updateCoordinates();
             updateStatus();
         });
@@ -1560,9 +1560,9 @@ body.create-active #finishButton[hidden]{display:none!important}
 
             if (currentType === "inner") {
                 currentBound = null;
+                currentType = null;
             }
-
-
+            setEditorStep(null);
             updateCoordinates();
             updateStatus();
         });
@@ -1603,6 +1603,7 @@ body.create-active #finishButton[hidden]{display:none!important}
 
         currentBound = null;
         currentType = null;
+        setEditorStep(null);
 
         currentTrackName = "";
 
