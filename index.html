@@ -432,6 +432,14 @@ header{min-height:86px}
 .map-pin-toggle[aria-pressed="false"] .pin-symbol:after{content:"";position:absolute;left:-5px;top:10px;width:34px;height:3px;border-radius:2px;background:#ff6868;transform:rotate(-48deg);box-shadow:0 0 2px #080d17}
 .map-finish-button,.map-location-button{position:absolute;z-index:1250;right:18px;min-height:48px;border:1px solid rgba(210,226,246,.45);border-radius:14px;background:rgba(9,19,33,.94);color:#fff;box-shadow:0 5px 18px #0007;backdrop-filter:blur(8px)}
 .map-finish-button{top:16px;padding:0 20px;background:#dcecff;color:#0b1a2c;font-weight:900;letter-spacing:.08em}
+.sidebar-topline{justify-content:flex-start!important;gap:0!important;align-items:center!important;padding:0 0 14px!important}
+.sidebar-topline h2{margin:0!important;padding:0 0 0 12px!important;font-size:20px!important;font-weight:750}
+.back-menu-button{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;padding:0!important;border-radius:8px!important;display:grid!important;place-items:center!important;font-size:25px!important;font-weight:400!important;line-height:1}
+#workspaceHeading{letter-spacing:-.02em}
+#locationButton{display:none!important}
+body.create-active #locationButton:not([hidden]){display:grid!important}
+body.create-active #finishButton{display:block!important}
+body.load-active #locationButton,body.load-active #finishButton{display:none!important}
 .map-location-button{top:76px;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:27px}
 .map-location-button span{display:block;transform:rotate(180deg)}
 .map-finish-button[hidden],.map-location-button[hidden]{display:none!important}
@@ -558,8 +566,8 @@ body.menu-active #workspaceSidebar{display:none}
 <div id="map"></div>
 <aside id="workspaceSidebar" class="workspace-sidebar">
   <div class="sidebar-topline">
-    <div><span class="sidebar-eyebrow">WORKSPACE</span><h2 id="workspaceHeading">Create Track</h2></div>
-    <button id="backToMenuButton" class="back-menu-button">← Menu</button>
+    <button id="backToMenuButton" class="back-menu-button" aria-label="Back to menu">&lt;</button>
+    <h2 id="workspaceHeading">Create Track</h2>
   </div>
   <div id="loadPanel" class="load-panel" hidden>
     <p class="panel-help">Choose a saved track to preview it on the map.</p>
@@ -619,7 +627,7 @@ body.menu-active #workspaceSidebar{display:none}
   </div>
 </aside>
 <button id="toggleButton" class="map-pin-toggle" type="button" aria-label="Hide pins" aria-pressed="true" title="Hide pins"><span class="pin-symbol" aria-hidden="true">📍</span></button>
-<button id="finishButton" class="map-finish-button" type="button" hidden>FINISH?</button>
+<button id="finishButton" class="map-finish-button" type="button" hidden>FINISH</button>
 <button id="locationButton" class="map-location-button" type="button" aria-label="Drop a pin at my current location" title="Drop a pin at my current location" hidden><span aria-hidden="true">👤</span></button>
 </div>
 
@@ -771,7 +779,7 @@ body.menu-active #workspaceSidebar{display:none}
 
             showToast(
                 "New Outer Bound created.\n\n" +
-                "Click the map or use My Location to add points."
+                "Click the map or use the location pin button to add points."
             );
         });
 
@@ -890,12 +898,9 @@ body.menu-active #workspaceSidebar{display:none}
         }
 
         const markerOptions = {
-            draggable: true
+            draggable: true,
+            icon: currentBound.type === "inner" ? innerPinIcon : outerPinIcon
         };
-
-        if (currentBound.type === "inner") {
-            markerOptions.icon = innerPinIcon;
-        }
 
         const marker = L.marker(
             [lat, lng],
@@ -1007,8 +1012,21 @@ body.menu-active #workspaceSidebar{display:none}
     }
 
 
-    // Orange pin for inner bounds, same size and shape
-    // as Leaflet's default blue pin
+    // Matching map-pin shapes in blue (outer) and orange (inner).
+    const outerPinIcon = L.divIcon({
+        className: "outer-pin",
+        html:
+            '<svg width="25" height="41" viewBox="0 0 25 41">' +
+            '<path d="M12.5 1C6.1 1 1 6.1 1 12.5c0 8.6 11.5 27 11.5 27' +
+            'S24 21.1 24 12.5C24 6.1 18.9 1 12.5 1z" ' +
+            'fill="#2588ff" stroke="#1255a0" stroke-width="1.5"/>' +
+            '<circle cx="12.5" cy="12.5" r="4.5" fill="white"/>' +
+            '</svg>',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        tooltipAnchor: [16, -28]
+    });
+
     const innerPinIcon = L.divIcon({
         className: "inner-pin",
         html:
@@ -1141,14 +1159,9 @@ body.menu-active #workspaceSidebar{display:none}
         .addEventListener("click", function () {
 
             if (!currentBound) {
-
-                showToast(
-                    "Create an Outer or Inner Bound first."
-                );
-
+                showToast("Create an Outer or Inner Bound first.");
                 return;
             }
-
 
             if (currentBound.markers.length < 3) {
 
@@ -1168,14 +1181,8 @@ body.menu-active #workspaceSidebar{display:none}
 
             updateStatus();
 
-            showToast(
-                capitalize(currentType) +
-                " Bound finished!"
-            );
-
-            if (confirm("Would you like to save this track?")) {
-                openModal("save");
-            }
+            showToast(capitalize(currentType) + " Bound finished. Save it as a track.");
+            openModal("save");
         });
 
 
@@ -2104,8 +2111,10 @@ body.menu-active #workspaceSidebar{display:none}
         createPanel.hidden = isLoad;
         loadPanel.hidden = !isLoad;
         document.getElementById("toggleButton").hidden = isLoad;
-        document.getElementById("finishButton").hidden = isLoad || !currentBound || currentBound.finished;
+        document.getElementById("finishButton").hidden = isLoad;
         document.getElementById("locationButton").hidden = isLoad || !currentBound || currentBound.finished;
+        document.body.classList.toggle("create-active", !isLoad);
+        document.body.classList.toggle("load-active", isLoad);
         document.getElementById("loadTrackButton").hidden = true;
         clearTrackPreview();
         // Leaflet must recalculate its pixel origin after the map changes from
@@ -2134,6 +2143,7 @@ body.menu-active #workspaceSidebar{display:none}
     document.getElementById("backToMenuButton").addEventListener("click", () => {
         clearTrackPreview();
         workspaceGrid.hidden = false;
+        document.body.classList.remove("create-active","load-active");
         document.body.classList.add("menu-active");
         mainMenu.classList.remove("choice-create","choice-load");
         mainMenu.hidden = false;
