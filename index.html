@@ -430,7 +430,12 @@ header{min-height:86px}
 .map-pin-toggle:hover{background:#172b43}
 .pin-symbol{font-size:23px;line-height:1;position:relative}
 .map-pin-toggle[aria-pressed="false"] .pin-symbol:after{content:"";position:absolute;left:-5px;top:10px;width:34px;height:3px;border-radius:2px;background:#ff6868;transform:rotate(-48deg);box-shadow:0 0 2px #080d17}
-@media(max-width:700px){.workspace-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"map"}#workspaceSidebar{grid-area:auto}.map-pin-toggle{top:14px;right:14px}}
+.map-finish-button,.map-location-button{position:absolute;z-index:1250;right:18px;min-height:48px;border:1px solid rgba(210,226,246,.45);border-radius:14px;background:rgba(9,19,33,.94);color:#fff;box-shadow:0 5px 18px #0007;backdrop-filter:blur(8px)}
+.map-finish-button{top:16px;padding:0 20px;background:#dcecff;color:#0b1a2c;font-weight:900;letter-spacing:.08em}
+.map-location-button{top:76px;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:27px}
+.map-location-button span{display:block;transform:rotate(180deg)}
+.map-finish-button[hidden],.map-location-button[hidden]{display:none!important}
+@media(max-width:700px){.workspace-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"map"}#workspaceSidebar{grid-area:auto}.map-pin-toggle{top:14px;right:14px}.map-finish-button{top:14px;right:72px}.map-location-button{top:72px;right:14px}}
 </style>
 <style>
 /* The actual Leaflet map is the welcome-screen backdrop; the black gradient is layered above it. */
@@ -514,7 +519,7 @@ body.menu-active #workspaceSidebar{display:none}
 #createPanel.step-outer #editorStepBack,#createPanel.step-inner #editorStepBack,#createPanel.step-coordinates #editorStepBack,#createPanel.step-clear #editorStepBack{display:block}
 #createPanel.step-outer .bound-step-buttons button:not(#newOuterButton),#createPanel.step-inner .bound-step-buttons button:not(#newInnerButton){display:none!important}
 #createPanel.step-outer .utility-step-buttons,#createPanel.step-inner .utility-step-buttons{display:none!important}
-#createPanel.step-outer #finishButton,#createPanel.step-inner #finishButton,#createPanel.step-outer #locationButton,#createPanel.step-inner #locationButton{display:block!important}
+
 #createPanel.step-coordinates .controls>*:not(#editorStepBack),#createPanel.step-clear .controls>*:not(#editorStepBack){display:none!important}
 #createPanel.step-coordinates #coordinatesPanel{display:grid!important}
 #createPanel.step-clear #clearStepOptions{display:grid!important}
@@ -569,15 +574,7 @@ body.menu-active #workspaceSidebar{display:none}
   </div>
   <div id="createPanel">
 <div class="track-buttons">
-
-    <button class="save-btn" id="saveTrackButton">
-        Save Track
-    </button>
-
-    <button class="load-btn" id="loadTrackButton">
-        Load Track
-    </button>
-
+    <button class="load-btn" id="loadTrackButton">Load Track</button>
 </div>
 
 <div class="controls" id="editorControls">
@@ -591,8 +588,6 @@ body.menu-active #workspaceSidebar{display:none}
       <button class="step-toggle-btn" id="toggleCoordinatesButton" type="button" aria-expanded="false">Show Coordinates</button>
       <button class="step-toggle-btn" id="toggleClearButton" type="button" aria-expanded="false">Clear</button>
     </div>
-    <button class="finish-btn" id="finishButton" hidden>Finish Current Bound</button>
-    <button class="location-btn" id="locationButton" hidden>📍 My Location</button>
     <div class="clear-step-options" id="clearStepOptions" hidden>
       <button class="clear-outer-btn" id="clearOuterButton">Clear Outer Bounds</button>
       <button class="clear-inner-btn" id="clearInnerButton">Clear Inner Bounds</button>
@@ -624,6 +619,8 @@ body.menu-active #workspaceSidebar{display:none}
   </div>
 </aside>
 <button id="toggleButton" class="map-pin-toggle" type="button" aria-label="Hide pins" aria-pressed="true" title="Hide pins"><span class="pin-symbol" aria-hidden="true">📍</span></button>
+<button id="finishButton" class="map-finish-button" type="button" hidden>FINISH?</button>
+<button id="locationButton" class="map-location-button" type="button" aria-label="Drop a pin at my current location" title="Drop a pin at my current location" hidden><span aria-hidden="true">♟</span></button>
 </div>
 
 <div class="modal-overlay" id="modal" hidden>
@@ -1175,11 +1172,15 @@ body.menu-active #workspaceSidebar{display:none}
                 capitalize(currentType) +
                 " Bound finished!"
             );
+
+            if (confirm("Would you like to save this track?")) {
+                openModal("save");
+            }
         });
 
 
     // ==========================================
-    // MY LOCATION
+    // DROP A PIN AT THE DEVICE'S CURRENT LOCATION
     // ==========================================
 
     document
@@ -1196,19 +1197,9 @@ body.menu-active #workspaceSidebar{display:none}
             }
 
 
-            // Automatically create an outer bound
-            // if the user hasn't created one yet.
-            if (!currentBound) {
-
-                createBound("outer");
-            }
-
-
-            // If current bound is finished,
-            // create a new bound of the same type.
-            if (currentBound.finished) {
-
-                createBound(currentType);
+            if (!currentBound || currentBound.finished) {
+                showToast("Choose Outer Bound or Inner Bound before dropping a location pin.");
+                return;
             }
 
 
@@ -1878,14 +1869,6 @@ body.menu-active #workspaceSidebar{display:none}
     }
 
 
-    document
-        .getElementById("saveTrackButton")
-        .addEventListener("click", function () {
-
-            openModal("save");
-        });
-
-
     // Fill the dropdown with the saved tracks
     function showTrackList(message) {
 
@@ -2078,7 +2061,7 @@ body.menu-active #workspaceSidebar{display:none}
 
         trackStatus.textContent = "Database not set up";
 
-        ["loadTrackButton", "saveTrackButton", "activateTrackButton"]
+        ["loadTrackButton", "activateTrackButton"]
             .forEach(function (id) {
                 document.getElementById(id).disabled = true;
             });
@@ -2121,8 +2104,9 @@ body.menu-active #workspaceSidebar{display:none}
         createPanel.hidden = isLoad;
         loadPanel.hidden = !isLoad;
         document.getElementById("toggleButton").hidden = isLoad;
+        document.getElementById("finishButton").hidden = isLoad || !currentBound || currentBound.finished;
+        document.getElementById("locationButton").hidden = isLoad || !currentBound || currentBound.finished;
         document.getElementById("loadTrackButton").hidden = true;
-        document.getElementById("saveTrackButton").hidden = false;
         clearTrackPreview();
         // Leaflet must recalculate its pixel origin after the map changes from
         // a full-screen backdrop into the split editor layout.
