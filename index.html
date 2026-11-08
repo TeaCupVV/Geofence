@@ -1190,12 +1190,12 @@ body.create-active #finishButton[hidden]{display:none!important}
     // ==========================================
 
     map.on("click", function (event) {
-
-        addPoint(
-            event.latlng.lat,
-            event.latlng.lng
-        );
-
+        if (!document.body.classList.contains("create-active")) return;
+        if (!currentBound || currentBound.finished) {
+            showToast("Choose Outer Bound or Inner Bound before placing pins.");
+            return;
+        }
+        addPoint(event.latlng.lat, event.latlng.lng);
     });
 
 
@@ -2210,7 +2210,7 @@ body.create-active #finishButton[hidden]{display:none!important}
         createPanel.hidden = isLoad;
         loadPanel.hidden = !isLoad;
         document.getElementById("toggleButton").hidden = isLoad;
-        document.getElementById("finishButton").hidden = isLoad;
+        document.getElementById("finishButton").hidden = isLoad || !currentBound || currentBound.finished;
         document.getElementById("locationButton").hidden = isLoad || !currentBound || currentBound.finished;
         document.body.classList.toggle("create-active", !isLoad);
         document.body.classList.toggle("load-active", isLoad);
