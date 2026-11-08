@@ -582,9 +582,12 @@ body.create-active #finishButton:not([hidden]){display:block!important}
 .bound-point-remove{min-height:26px;width:28px;padding:0;border-radius:7px;background:#3b2430;color:#ffdce2}
 #locationButton svg{width:27px;height:27px;display:block}
 .map-location-button span{display:none!important}
+body.create-active #toggleButton{top:18px!important;right:18px!important}
+body.create-active #locationButton:not([hidden]){top:76px!important;right:18px!important}
+body.create-active #finishButton[hidden]{display:none!important}
 @media(max-width:700px){
-  .map-pin-toggle{top:auto!important;bottom:calc(min(48dvh,430px) + 18px)!important;right:14px!important}
-  .map-location-button{top:auto!important;bottom:calc(min(48dvh,430px) + 76px)!important;right:14px!important}
+  body.create-active #toggleButton{top:auto!important;bottom:calc(min(48dvh,430px) + 76px)!important;right:14px!important}
+  body.create-active #locationButton:not([hidden]){top:auto!important;bottom:calc(min(48dvh,430px) + 18px)!important;right:14px!important}
 }
 </style>
 </head>
