@@ -1295,11 +1295,26 @@ body.create-active #finishButton[hidden]{display:none!important}
 
             drawPolygon(currentBound);
 
+            const finishedType = currentType;
             updateCoordinates();
             updateBoundPointList();
             updateStatus();
+            setEditorStep(null);
 
-            showToast(capitalize(currentType) + " bound finished.");
+            showToast(capitalize(finishedType) + " bound finished. Returning to tools.");
+            if (outerBounds.length && innerBounds.length &&
+                outerBounds.every(bound => bound.finished) &&
+                innerBounds.every(bound => bound.finished)) {
+                // Both boundary types are complete; return to the second-stage menu.
+                document.getElementById("toggleButton").hidden = true;
+                document.getElementById("finishButton").hidden = true;
+                document.getElementById("locationButton").hidden = true;
+                document.body.classList.remove("create-active","load-active");
+                document.body.classList.add("menu-active");
+                mainMenu.classList.remove("choice-create","choice-load");
+                mainMenu.hidden = false;
+                requestAnimationFrame(() => requestAnimationFrame(() => map.invalidateSize({pan:false})));
+            }
         });
 
 
@@ -2225,6 +2240,7 @@ body.create-active #finishButton[hidden]{display:none!important}
         document.body.classList.remove("menu-active");
         workspaceGrid.hidden = false;
         const isLoad = mode === "load";
+        if (!isLoad) setEditorStep(null);
         workspaceHeading.textContent = isLoad ? "Load Track" : "Create Track";
         createPanel.hidden = isLoad;
         loadPanel.hidden = !isLoad;
@@ -2282,6 +2298,7 @@ body.create-active #finishButton[hidden]{display:none!important}
             discardWorkingBounds();
         }
         clearTrackPreview();
+        setEditorStep(null);
         document.getElementById("toggleButton").hidden = true;
         document.getElementById("finishButton").hidden = true;
         document.getElementById("locationButton").hidden = true;
