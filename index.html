@@ -443,24 +443,29 @@ body.welcome-active #workspaceSidebar{display:none}
 </style>
 <style>
 /* Welcome and menu layout based on the team's hand-drawn UI reference */
-#welcomeScreen{background:linear-gradient(to bottom,rgba(3,9,18,.96) 0%,rgba(3,9,18,.78) 38%,rgba(3,9,18,.36) 72%,rgba(3,9,18,.04) 100%);backdrop-filter:none}
+#welcomeScreen{background:linear-gradient(to bottom,rgba(2,7,15,.99) 0%,rgba(2,7,15,.91) 42%,rgba(2,7,15,.66) 74%,rgba(2,7,15,.28) 100%);backdrop-filter:none}
 .welcome-content{position:absolute;top:34%;left:50%;transform:translate(-50%,-50%);width:min(92vw,760px);padding:20px;text-align:center}
 .welcome-title{font-size:clamp(48px,9vw,86px);letter-spacing:.16em;font-weight:850;margin:0 0 12px;color:#f4f8ff;text-shadow:0 4px 24px #0008}
-.welcome-subtitle{font-size:clamp(11px,1.6vw,14px);letter-spacing:.28em;color:#d1dced}
-.welcome-hint{position:fixed;top:72vh;left:0;width:100%;font-size:11px;letter-spacing:.25em;color:#e0e9f7;text-shadow:0 2px 12px #000}
-.welcome-continue{position:absolute;left:50%;bottom:7vh;transform:translateX(-50%);width:44px;height:44px;min-height:44px;padding:0;border:1px solid #c8d8eb88;border-radius:50%;background:#07132188;color:#fff;font-size:22px;backdrop-filter:blur(8px)}
-.main-menu{position:fixed;inset:0;z-index:2500;display:grid;place-items:center;padding:22px;background:rgba(3,9,18,.12);backdrop-filter:none}
+.welcome-subtitle{font-size:clamp(11px,1.6vw,14px);letter-spacing:.28em;color:#e3ecfa}
+.welcome-hint{position:fixed;top:72vh;left:0;width:100%;font-size:12px;font-weight:700;letter-spacing:.25em;color:#fff;text-shadow:0 2px 14px #000,0 0 8px #000}
+.welcome-continue{position:absolute;left:50%;bottom:7vh;transform:translateX(-50%);width:44px;height:44px;min-height:44px;padding:0;border:1px solid #dceaffaa;border-radius:50%;background:rgba(3,10,20,.86);color:#fff;font-size:22px;backdrop-filter:blur(8px)}
+/* Keep the map as the full-screen backdrop on the second menu screen. */
+body.menu-active{overflow:hidden}
+body.menu-active header{display:none}
+body.menu-active #workspaceGrid{display:block!important;position:fixed;inset:0;width:100vw;height:100vh;min-height:0;z-index:1;grid-template-columns:1fr;grid-template-areas:"map"}
+body.menu-active #map{position:absolute;inset:0;width:100%;height:100%;min-height:0}
+body.menu-active #workspaceSidebar{display:none}
+.main-menu{position:fixed;inset:0;z-index:2500;display:grid;place-items:center;padding:22px;background:rgba(3,9,18,.18);backdrop-filter:none}
 .menu-card{width:min(680px,100%);padding:26px 22px;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;text-align:center;overflow:visible}
-.menu-prompt{font-size:clamp(15px,2vw,19px);font-weight:650;letter-spacing:.13em;color:#f4f8ff;text-shadow:0 2px 12px #000b;margin:0 0 34px}
+.menu-prompt{font-size:clamp(15px,2vw,19px);font-weight:700;letter-spacing:.13em;color:#fff;text-shadow:0 2px 14px #000;margin:0 0 34px}
 .menu-actions{display:flex;justify-content:center;align-items:center;gap:clamp(14px,4vw,34px);margin:0}
-.menu-choice{display:flex;align-items:center;justify-content:center;gap:10px;width:min(220px,42vw);min-height:62px;padding:14px 18px;border:1px solid #c5d8f477;border-radius:9px;background:rgba(5,15,28,.76);color:#f4f8ff;text-align:center;box-shadow:0 8px 28px #0005;backdrop-filter:blur(8px);transition:transform .48s cubic-bezier(.2,.8,.2,1),opacity .42s,background .2s,border-color .2s}
+.menu-choice{display:flex;align-items:center;justify-content:center;gap:10px;width:min(220px,42vw);min-height:62px;padding:14px 18px;border:1px solid #d0e0f477;border-radius:9px;background:rgba(5,15,28,.84);color:#f4f8ff;text-align:center;box-shadow:0 8px 28px #0007;backdrop-filter:blur(8px);transition:transform .48s cubic-bezier(.2,.8,.2,1),opacity .42s,background .2s,border-color .2s}
 .menu-choice strong{font-size:15px;white-space:nowrap}
 .menu-choice .choice-icon{width:auto;height:auto;background:transparent;color:#a8ceff;font-size:20px}
 .menu-load .choice-icon{background:transparent;color:#ffd09a}
-.menu-choice:hover{border-color:#9bcaff;background:rgba(15,36,60,.9)}
-.main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{position:fixed;top:18px;right:18px;z-index:3;width:auto;min-width:160px;min-height:48px;transform:translate(0,0);background:rgba(5,15,28,.9)}
-.main-menu.choice-create #menuLoadButton{opacity:0;transform:translateX(-120vw)}
-.main-menu.choice-load #menuCreateButton{opacity:0;transform:translateX(-120vw)}
+.menu-choice:hover{border-color:#9bcaff;background:rgba(15,36,60,.94)}
+.main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{position:fixed;top:18px;right:18px;z-index:3;width:auto;min-width:160px;min-height:48px;transform:translate(0,0);background:rgba(5,15,28,.94)}
+.main-menu.choice-create #menuLoadButton,.main-menu.choice-load #menuCreateButton{opacity:0;transform:translateX(-120vw)}
 .main-menu.choice-create .menu-prompt,.main-menu.choice-load .menu-prompt{opacity:0;transition:opacity .2s}
 .main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{transition:all .48s cubic-bezier(.2,.8,.2,1)}
 @media(max-width:520px){.menu-actions{flex-direction:column;gap:14px}.menu-choice{width:min(280px,82vw)}.welcome-content{top:35%}.welcome-hint{top:70vh}}
@@ -638,9 +643,10 @@ body.welcome-active #workspaceSidebar{display:none}
     let welcomeTouchStartY = null;
     function dismissWelcome() {
         document.body.classList.remove('welcome-active');
+        document.body.classList.add('menu-active');
         welcomeScreen.classList.add('dismissed');
         mainMenu.hidden = false;
-        setTimeout(() => map.invalidateSize(), 100);
+        requestAnimationFrame(() => requestAnimationFrame(() => map.invalidateSize({pan:false})));
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
                 map.setView([position.coords.latitude, position.coords.longitude], 16);
@@ -2042,6 +2048,7 @@ body.welcome-active #workspaceSidebar{display:none}
 
     function showWorkspace(mode) {
         mainMenu.hidden = true;
+        document.body.classList.remove("menu-active");
         workspaceGrid.hidden = false;
         const isLoad = mode === "load";
         workspaceHeading.textContent = isLoad ? "Load Track" : "Create Track";
@@ -2051,25 +2058,36 @@ body.welcome-active #workspaceSidebar{display:none}
         document.getElementById("loadTrackButton").hidden = true;
         document.getElementById("saveTrackButton").hidden = false;
         clearTrackPreview();
-        setTimeout(() => map.invalidateSize(), 80);
+        // Leaflet must recalculate its pixel origin after the map changes from
+        // a full-screen backdrop into the split editor layout.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            map.invalidateSize({pan:false});
+            map.setView(map.getCenter(), map.getZoom(), {animate:false});
+        }));
         if (isLoad) refreshSavedTrackPanel();
     }
 
+    let menuChoiceInProgress = false;
     function chooseMenuAction(mode) {
+        if (menuChoiceInProgress) return;
+        menuChoiceInProgress = true;
         mainMenu.classList.remove("choice-create","choice-load");
         mainMenu.classList.add(mode === "create" ? "choice-create" : "choice-load");
         setTimeout(() => {
-            mainMenu.hidden = true;
             mainMenu.classList.remove("choice-create","choice-load");
             showWorkspace(mode);
+            menuChoiceInProgress = false;
         }, 520);
     }
     document.getElementById("menuCreateButton").addEventListener("click", () => chooseMenuAction("create"));
     document.getElementById("menuLoadButton").addEventListener("click", () => chooseMenuAction("load"));
     document.getElementById("backToMenuButton").addEventListener("click", () => {
         clearTrackPreview();
-        workspaceGrid.hidden = true;
+        workspaceGrid.hidden = false;
+        document.body.classList.add("menu-active");
+        mainMenu.classList.remove("choice-create","choice-load");
         mainMenu.hidden = false;
+        requestAnimationFrame(() => requestAnimationFrame(() => map.invalidateSize({pan:false})));
     });
 
     function renderSavedTrackPanel() {
