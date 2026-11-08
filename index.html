@@ -655,8 +655,8 @@ body.create-active #finishButton[hidden]{display:none!important}
       <button id="finishButton" class="toolbar-finish-button" type="button" hidden>Finish Bound</button>
     </div>
     <div class="bound-step-buttons">
-      <button class="outer-btn" id="newOuterButton">Outer Bound</button>
-      <button class="inner-btn" id="newInnerButton">Inner Bound</button>
+      <button class="outer-btn" id="newOuterButton">Create New Outer Boundary</button>
+      <button class="inner-btn" id="newInnerButton">Create New Inner Boundary</button>
     </div>
     <div id="boundPointsList" class="bound-points-list" hidden aria-live="polite"></div>
     <div class="utility-step-buttons">
@@ -881,7 +881,7 @@ body.create-active #finishButton[hidden]{display:none!important}
         const header = document.getElementById("editorSubstepHeader");
         const title = document.getElementById("editorSubstepTitle");
         header.hidden = !step;
-        const titles = {outer:"Outer Bound",inner:"Inner Bound",coordinates:"Coordinates",clear:"Clear"};
+        const titles = {outer:"Create New Outer Boundary",inner:"Create New Inner Boundary",coordinates:"Coordinates",clear:"Clear"};
         title.textContent = titles[step] || "";
         document.getElementById("coordinatesPanel").hidden = step !== "coordinates";
         document.getElementById("clearStepOptions").hidden = step !== "clear";
@@ -915,8 +915,6 @@ body.create-active #finishButton[hidden]{display:none!important}
         setEditorStep(null);
         updateStatus();
     });
-    document.getElementById("newOuterButton").addEventListener("click", () => setEditorStep("outer"));
-    document.getElementById("newInnerButton").addEventListener("click", () => setEditorStep("inner"));
     document.getElementById("toggleCoordinatesButton").addEventListener("click", () => setEditorStep("coordinates"));
     document.getElementById("toggleClearButton").addEventListener("click", () => setEditorStep("clear"));
 
@@ -957,39 +955,48 @@ body.create-active #finishButton[hidden]{display:none!important}
         const panel = document.getElementById("boundPointsList");
         if (!panel) return;
         panel.replaceChildren();
-        const inBoundEditor =
-            createPanelElement.classList.contains("step-outer") ||
-            createPanelElement.classList.contains("step-inner");
-        if (!currentBound || !inBoundEditor) {
+        if (!createPanelElement.classList.contains("step-coordinates")) {
             panel.hidden = true;
             return;
         }
         panel.hidden = false;
-        const heading = document.createElement("strong");
-        heading.textContent = currentBound.type === "outer" ? "Outer Bound Pins" : "Inner Bound Pins";
-        heading.style.fontSize = "12px";
-        panel.appendChild(heading);
-        if (!currentBound.markers.length) {
+        const allBounds = [
+            ...outerBounds.map((bound, index) => ({bound, label: "Outer Boundary " + (index + 1)})),
+            ...innerBounds.map((bound, index) => ({bound, label: "Inner Boundary " + (index + 1)}))
+        ];
+        if (!allBounds.length) {
             const empty = document.createElement("small");
-            empty.textContent = "No pins placed yet";
+            empty.textContent = "No boundary pins yet.";
             empty.style.color = "#9db2cb";
             panel.appendChild(empty);
             return;
         }
-        currentBound.markers.forEach((marker, index) => {
-            const position = marker.getLatLng();
-            const row = document.createElement("div");
-            row.className = "bound-point-row";
-            const label = document.createElement("small");
-            label.textContent = `Pin ${index + 1}: ${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`;
-            const remove = document.createElement("button");
-            remove.type = "button";
-            remove.className = "bound-point-remove";
-            remove.textContent = "×";
-            remove.setAttribute("aria-label", `Remove pin ${index + 1}`);
-            remove.addEventListener("click", () => deletePin(currentBound, marker));
-            row.append(label, remove);
-            panel.appendChild(row);
+        allBounds.forEach(({bound, label: headingText}) => {
+            const heading = document.createElement("strong");
+            heading.textContent = headingText;
+            heading.style.cssText = "display:block;font-size:12px;margin:8px 0 4px";
+            panel.appendChild(heading);
+            if (!bound.markers.length) {
+                const empty = document.createElement("small");
+                empty.textContent = "No pins placed";
+                empty.style.color = "#9db2cb";
+                panel.appendChild(empty);
+            }
+            bound.markers.forEach((marker, index) => {
+                const position = marker.getLatLng();
+                const row = document.createElement("div");
+                row.className = "bound-point-row";
+                const label = document.createElement("small");
+                label.textContent = "Pin " + (index + 1) + ": " + position.lat.toFixed(5) + ", " + position.lng.toFixed(5);
+                const remove = document.createElement("button");
+                remove.type = "button";
+                remove.className = "bound-point-remove";
+                remove.textContent = "×";
+                remove.setAttribute("aria-label", "Remove pin " + (index + 1) + " from " + headingText);
+                remove.addEventListener("click", () => deletePin(bound, marker));
+                row.append(label, remove);
+                panel.appendChild(row);
+            });
         });
     }
 
@@ -1174,16 +1181,9 @@ body.create-active #finishButton[hidden]{display:none!important}
 
         bound.markers.splice(bound.markers.indexOf(marker), 1);
 
-        // A finished bound needs at least 3 points.
-        // If it drops below that, reopen it so more
-        // pins can be added.
-        if (bound.finished && bound.markers.length < 3) {
+        // Finished boundaries are not reopened for editing. Create a new
+        // boundary from the toolbar if another one is needed.
 
-            bound.finished = false;
-
-            currentBound = bound;
-            currentType = bound.type;
-        }
 
         // Remove the bound completely once its last pin is gone
         if (bound.markers.length === 0) {
