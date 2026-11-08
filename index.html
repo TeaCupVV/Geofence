@@ -487,6 +487,24 @@ body.menu-active #workspaceSidebar{display:none}
 <style>/* Hide Leaflet's default + / - zoom buttons */
 .leaflet-control-zoom{display:none!important}
 </style>
+<style>
+/* Editor toolbar follows the sketch: bound selection, coordinates, then clear. */
+#workspaceSidebar{top:12px!important}
+#workspaceSidebar .sidebar-topline{padding-top:0!important}
+#createPanel .controls{display:flex!important;flex-direction:column!important;gap:10px!important}
+.bound-step-buttons,.utility-step-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bound-step-buttons button,.utility-step-buttons button{width:100%;min-width:0}
+#newOuterButton,#newInnerButton{min-height:48px;font-size:14px}
+#newOuterButton.active-step{outline:2px solid #78baff;box-shadow:0 0 0 3px #78baff33;background:#24558c}
+#newInnerButton.active-step{outline:2px solid #ffb36d;box-shadow:0 0 0 3px #ffb36d33;background:#754322}
+.step-toggle-btn{background:#17283e;color:#eaf3ff;padding:10px 12px}
+.clear-step-options{display:grid;grid-template-columns:1fr;gap:7px;padding:10px;border:1px solid #344963;border-radius:10px;background:#0a1422}
+.clear-step-options button{min-height:38px}
+#coordinatesPanel[hidden],#clearStepOptions[hidden],#finishButton[hidden],#locationButton[hidden]{display:none!important}
+#coordinatesPanel{display:grid!important;grid-template-columns:1fr!important;padding:0!important;gap:8px!important}
+#coordinatesPanel textarea{height:90px!important}
+@media(max-width:700px){#workspaceSidebar{top:auto!important;bottom:8px!important}#coordinatesPanel textarea{height:65px!important}}
+</style>
 </head>
 
 <body class="welcome-active">
@@ -546,39 +564,25 @@ body.menu-active #workspaceSidebar{display:none}
 
 </div>
 
-<div class="controls">
-
-    <button class="outer-btn" id="newOuterButton">
-        + New Outer Bound
-    </button>
-
-    <button class="inner-btn" id="newInnerButton">
-        + New Inner Bound
-    </button>
-
-    <button class="finish-btn" id="finishButton">
-        Finish Current Bound
-    </button>
-
-    <button class="location-btn" id="locationButton">
-        📍 My Location
-    </button>
-
-    <button class="clear-outer-btn" id="clearOuterButton">
-        Clear Outer Bounds
-    </button>
-
-    <button class="clear-inner-btn" id="clearInnerButton">
-        Clear Inner Bounds
-    </button>
-
-    <button class="clear-all-btn" id="clearAllButton">
-        Clear Everything
-    </button>
-
+<div class="controls" id="editorControls">
+    <div class="bound-step-buttons">
+      <button class="outer-btn" id="newOuterButton">Outer Bound</button>
+      <button class="inner-btn" id="newInnerButton">Inner Bound</button>
+    </div>
+    <div class="utility-step-buttons">
+      <button class="step-toggle-btn" id="toggleCoordinatesButton" type="button" aria-expanded="false">Show Coordinates</button>
+      <button class="step-toggle-btn" id="toggleClearButton" type="button" aria-expanded="false">Clear</button>
+    </div>
+    <button class="finish-btn" id="finishButton" hidden>Finish Current Bound</button>
+    <button class="location-btn" id="locationButton" hidden>📍 My Location</button>
+    <div class="clear-step-options" id="clearStepOptions" hidden>
+      <button class="clear-outer-btn" id="clearOuterButton">Clear Outer Bounds</button>
+      <button class="clear-inner-btn" id="clearInnerButton">Clear Inner Bounds</button>
+      <button class="clear-all-btn" id="clearAllButton">Clear Everything</button>
+    </div>
 </div>
 
-<div class="coordinates-container">
+<div class="coordinates-container" id="coordinatesPanel" hidden>
 
     <div class="coordinate-box">
         <h3>Outer Bounds</h3>
@@ -778,40 +782,43 @@ body.menu-active #workspaceSidebar{display:none}
     // STATUS
     // ==========================================
 
-    function updateStatus() {
+    document.getElementById("toggleCoordinatesButton").addEventListener("click", function () {
+        const panel = document.getElementById("coordinatesPanel");
+        const open = panel.hidden;
+        panel.hidden = !open;
+        this.textContent = open ? "Hide Coordinates" : "Show Coordinates";
+        this.setAttribute("aria-expanded", String(open));
+    });
+    document.getElementById("toggleClearButton").addEventListener("click", function () {
+        const options = document.getElementById("clearStepOptions");
+        const open = options.hidden;
+        options.hidden = !open;
+        this.setAttribute("aria-expanded", String(open));
+        this.textContent = open ? "Close Clear" : "Clear";
+    });
 
+    function updateStatus() {
         const status = document.getElementById("status");
+        const outerButton = document.getElementById("newOuterButton");
+        const innerButton = document.getElementById("newInnerButton");
+        const finishButton = document.getElementById("finishButton");
+        const locationButton = document.getElementById("locationButton");
+
+        outerButton.classList.toggle("active-step", currentType === "outer" && !!currentBound && !currentBound.finished);
+        innerButton.classList.toggle("active-step", currentType === "inner" && !!currentBound && !currentBound.finished);
+        finishButton.hidden = !currentBound || currentBound.finished;
+        locationButton.hidden = !currentBound || currentBound.finished;
 
         if (!currentBound) {
-            status.textContent =
-                "Ready — choose a bound type";
-
+            status.textContent = "Ready — choose a bound type";
             return;
         }
-
-        const list =
-            currentType === "outer"
-                ? outerBounds
-                : innerBounds;
-
-        const index =
-            list.indexOf(currentBound) + 1;
-
-        const pointCount =
-            currentBound.markers.length;
-
-        if (currentBound.finished) {
-
-            status.textContent =
-                `${capitalize(currentType)} Bound ${index} finished — ` +
-                `${pointCount} points`;
-
-        } else {
-
-            status.textContent =
-                `Drawing ${capitalize(currentType)} Bound ${index} — ` +
-                `${pointCount} points`;
-        }
+        const list = currentType === "outer" ? outerBounds : innerBounds;
+        const index = list.indexOf(currentBound) + 1;
+        const pointCount = currentBound.markers.length;
+        status.textContent = currentBound.finished
+            ? `${capitalize(currentType)} Bound ${index} finished — ${pointCount} points`
+            : `Drawing ${capitalize(currentType)} Bound ${index} — ${pointCount} points`;
     }
 
 
