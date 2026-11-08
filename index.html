@@ -537,6 +537,34 @@ body.menu-active #locationButton,
 body.menu-active #finishButton{display:none!important}
 body.menu-active #workspaceSidebar{display:none!important}
 </style>
+<style>
+/* Fade away only the unused menu choice and prompt; keep the selected choice still. */
+.menu-prompt,.menu-choice{transition:opacity .38s ease}
+.main-menu.choice-create #menuLoadButton,
+.main-menu.choice-load #menuCreateButton,
+.main-menu.choice-create .menu-prompt,
+.main-menu.choice-load .menu-prompt{opacity:0;pointer-events:none}
+
+/* Desktop editor tools float over the map in a rounded panel, inset evenly. */
+@media(min-width:701px){
+  body.create-active #workspaceGrid,
+  body.load-active #workspaceGrid{
+    display:block!important;position:relative;height:calc(100vh - 86px);
+    min-height:540px;grid-template-columns:1fr;grid-template-areas:"map";
+  }
+  body.create-active #map,
+  body.load-active #map{position:absolute;inset:0;width:100%;height:100%}
+  body.create-active #workspaceSidebar,
+  body.load-active #workspaceSidebar{
+    position:absolute!important;z-index:700;top:18px!important;left:18px;bottom:18px;
+    width:320px;max-height:none;box-sizing:border-box;
+    border:1px solid #40536b;border-radius:18px;
+    padding:16px;background:rgba(10,19,32,.96);
+    box-shadow:0 12px 40px #0008;backdrop-filter:blur(12px);
+    overflow:auto;
+  }
+}
+</style>
 </head>
 
 <body class="welcome-active">
@@ -2133,13 +2161,14 @@ body.menu-active #workspaceSidebar{display:none!important}
     function chooseMenuAction(mode) {
         if (menuChoiceInProgress) return;
         menuChoiceInProgress = true;
+        mainMenu.classList.remove("choice-create","choice-load");
         mainMenu.classList.add(mode === "create" ? "choice-create" : "choice-load");
-        // Let the selected menu button glide to the same top-left position as
-        // the workspace header while the prompt and unused choice fade away.
+        // Fade the prompt and unused option without moving the selected button.
         window.setTimeout(() => {
-                showWorkspace(mode);
+            showWorkspace(mode);
+            mainMenu.classList.remove("choice-create","choice-load");
             menuChoiceInProgress = false;
-        }, 760);
+        }, 400);
     }
     document.getElementById("menuCreateButton").addEventListener("click", () => chooseMenuAction("create"));
     document.getElementById("menuLoadButton").addEventListener("click", () => chooseMenuAction("load"));
@@ -2151,6 +2180,8 @@ body.menu-active #workspaceSidebar{display:none!important}
         document.getElementById("locationButton").hidden = true;
         document.body.classList.remove("create-active","load-active");
         document.body.classList.add("menu-active");
+        mainMenu.classList.remove("choice-create","choice-load");
+        menuChoiceInProgress = false;
         mainMenu.hidden = false;
         requestAnimationFrame(() => requestAnimationFrame(() => map.invalidateSize({pan:false})));
     });
