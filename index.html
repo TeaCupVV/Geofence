@@ -566,6 +566,27 @@ body.menu-active #workspaceSidebar{display:none!important}
   }
 }
 </style>
+<style>
+/* Bound creation controls and per-bound point list. */
+.sidebar-topline{display:flex!important;align-items:center!important;gap:0!important}
+#workspaceHeading{flex:1}
+.toolbar-finish-button{margin-left:auto;min-height:40px;padding:0 13px;border:1px solid #8fbaff;border-radius:9px;background:#dcecff;color:#0b1a2c;font-size:12px;font-weight:850;white-space:nowrap}
+.toolbar-finish-button[hidden]{display:none!important}
+#locationButton{display:none!important}
+body.create-active #locationButton:not([hidden]){display:grid!important}
+body.create-active #finishButton:not([hidden]){display:block!important}
+.bound-points-list{display:grid;gap:6px;margin:2px 0 6px;padding:9px;border:1px solid #344963;border-radius:10px;background:#091523}
+.bound-points-list[hidden]{display:none!important}
+.bound-point-row{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#dce9fa;font-size:12px}
+.bound-point-row small{color:#9db2cb}
+.bound-point-remove{min-height:26px;width:28px;padding:0;border-radius:7px;background:#3b2430;color:#ffdce2}
+#locationButton svg{width:27px;height:27px;display:block}
+.map-location-button span{display:none!important}
+@media(max-width:700px){
+  .map-pin-toggle{top:auto!important;bottom:calc(min(48dvh,430px) + 18px)!important;right:14px!important}
+  .map-location-button{top:auto!important;bottom:calc(min(48dvh,430px) + 76px)!important;right:14px!important}
+}
+</style>
 </head>
 
 <body class="welcome-active">
@@ -600,6 +621,7 @@ body.menu-active #workspaceSidebar{display:none!important}
   <div class="sidebar-topline">
     <button id="backToMenuButton" class="back-menu-button" aria-label="Back to menu">&lt;</button>
     <h2 id="workspaceHeading">Create Track</h2>
+    <button id="finishButton" class="toolbar-finish-button" type="button" hidden>Finish Bound</button>
   </div>
   <div id="loadPanel" class="load-panel" hidden>
     <p class="panel-help">Choose a saved track to preview it on the map.</p>
@@ -624,6 +646,7 @@ body.menu-active #workspaceSidebar{display:none!important}
       <button class="outer-btn" id="newOuterButton">Outer Bound</button>
       <button class="inner-btn" id="newInnerButton">Inner Bound</button>
     </div>
+    <div id="boundPointsList" class="bound-points-list" hidden aria-live="polite"></div>
     <div class="utility-step-buttons">
       <button class="step-toggle-btn" id="toggleCoordinatesButton" type="button" aria-expanded="false">Show Coordinates</button>
       <button class="step-toggle-btn" id="toggleClearButton" type="button" aria-expanded="false">Clear</button>
@@ -659,8 +682,7 @@ body.menu-active #workspaceSidebar{display:none!important}
   </div>
 </aside>
 <button id="toggleButton" class="map-pin-toggle" type="button" aria-label="Hide pins" aria-pressed="true" title="Hide pins"><span class="pin-symbol" aria-hidden="true">📍</span></button>
-<button id="finishButton" class="map-finish-button" type="button" hidden>FINISH</button>
-<button id="locationButton" class="map-location-button" type="button" aria-label="Drop a pin at my current location" title="Drop a pin at my current location" hidden><span aria-hidden="true">👤</span></button>
+<button id="locationButton" class="map-location-button" type="button" aria-label="Drop a pin at my current location" title="Drop a pin at my current location" hidden><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="11" r="7" fill="currentColor"/><path d="M24 20 L8 43 H40 Z" fill="currentColor"/></svg></button>
 </div>
 
 <div class="modal-overlay" id="modal" hidden>
@@ -792,7 +814,8 @@ body.menu-active #workspaceSidebar{display:none!important}
 
         currentBound = bound;
         currentType = type;
-
+        setEditorStep(type);
+        updateBoundPointList();
         updateStatus();
 
         return bound;
@@ -828,7 +851,7 @@ body.menu-active #workspaceSidebar{display:none!important}
 
             showToast(
                 "New Inner Bound created.\n\n" +
-                "Click the map or use My Location to add points."
+                "Click the map or use the location button to add points."
             );
         });
 
@@ -885,8 +908,10 @@ body.menu-active #workspaceSidebar{display:none!important}
 
         outerButton.classList.toggle("active-step", currentType === "outer" && !!currentBound && !currentBound.finished);
         innerButton.classList.toggle("active-step", currentType === "inner" && !!currentBound && !currentBound.finished);
+        finishButton.textContent = "Finish Bound";
         finishButton.hidden = !currentBound || currentBound.finished;
         locationButton.hidden = !currentBound || currentBound.finished;
+        updateBoundPointList();
 
         if (!currentBound) {
             status.textContent = "Ready — choose a bound type";
@@ -905,6 +930,43 @@ body.menu-active #workspaceSidebar{display:none!important}
         return text.charAt(0).toUpperCase() + text.slice(1);
     }
 
+    function updateBoundPointList() {
+        const panel = document.getElementById("boundPointsList");
+        if (!panel) return;
+        panel.replaceChildren();
+        if (!currentBound) {
+            panel.hidden = true;
+            return;
+        }
+        panel.hidden = false;
+        const heading = document.createElement("strong");
+        heading.textContent = currentBound.type === "outer" ? "Outer Bound Pins" : "Inner Bound Pins";
+        heading.style.fontSize = "12px";
+        panel.appendChild(heading);
+        if (!currentBound.markers.length) {
+            const empty = document.createElement("small");
+            empty.textContent = "No pins placed yet";
+            empty.style.color = "#9db2cb";
+            panel.appendChild(empty);
+            return;
+        }
+        currentBound.markers.forEach((marker, index) => {
+            const position = marker.getLatLng();
+            const row = document.createElement("div");
+            row.className = "bound-point-row";
+            const label = document.createElement("small");
+            label.textContent = `Pin ${index + 1}: ${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`;
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "bound-point-remove";
+            remove.textContent = "×";
+            remove.setAttribute("aria-label", `Remove pin ${index + 1}`);
+            remove.addEventListener("click", () => deletePin(currentBound, marker));
+            row.append(label, remove);
+            panel.appendChild(row);
+        });
+    }
+
 
     // ==========================================
     // ADD A POINT TO CURRENT BOUND
@@ -912,10 +974,10 @@ body.menu-active #workspaceSidebar{display:none!important}
 
     function addPoint(lat, lng) {
 
-        // If there isn't a bound yet,
-        // automatically create an outer bound.
+        // Pins can only be placed after the user chooses a bound type.
         if (!currentBound) {
-            createBound("outer");
+            showToast("Choose Outer Bound or Inner Bound before placing pins.");
+            return;
         }
 
         // Don't add points to a finished bound.
@@ -942,7 +1004,7 @@ body.menu-active #workspaceSidebar{display:none!important}
         marker.addTo(map);
 
         currentBound.markers.push(marker);
-
+        updateBoundPointList();
 
         // When marker is dragged,
         // redraw the polygon it belongs to.
@@ -952,6 +1014,7 @@ body.menu-active #workspaceSidebar{display:none!important}
 
             drawPolygon(bound);
             updateCoordinates();
+            updateBoundPointList();
 
         });
 
@@ -960,6 +1023,7 @@ body.menu-active #workspaceSidebar{display:none!important}
 
             drawPolygon(bound);
             updateCoordinates();
+            updateBoundPointList();
 
         });
 
@@ -1113,7 +1177,7 @@ body.menu-active #workspaceSidebar{display:none!important}
         drawPolygon(bound);
 
         updateCoordinates();
-
+        updateBoundPointList();
         updateStatus();
     }
 
@@ -1191,7 +1255,7 @@ body.menu-active #workspaceSidebar{display:none!important}
         .addEventListener("click", function () {
 
             if (!currentBound) {
-                showToast("Create an Outer or Inner Bound first.");
+                showToast("Choose Outer Bound or Inner Bound first.");
                 return;
             }
 
