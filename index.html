@@ -414,10 +414,19 @@ header{min-height:86px}
  .workspace-sidebar{left:auto;right:8px;top:8px;bottom:8px;width:36%;max-height:none}
 }
 </style>
+<style>
+.app-toast{position:fixed;z-index:4000;top:100px;left:50%;transform:translate(-50%,-12px);max-width:min(92vw,460px);padding:12px 18px;border:1px solid #405875;border-radius:12px;background:#14243a;color:#edf4ff;box-shadow:0 12px 36px #0008;font-size:13px;line-height:1.45;opacity:0;visibility:hidden;transition:.2s;pointer-events:none;text-align:center}
+.app-toast.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.app-toast.error{border-color:#a84c58;background:#3b1d2a}
+.app-toast.success{border-color:#39866a;background:#123629}
+@media(max-width:700px){.app-toast{top:112px}}
+</style>
 </head>
 
 <body>
 <div id="welcomeScreen" tabindex="0" aria-label="Continue to Geofence"><div class="welcome-content"><div class="welcome-kicker">EPICS · EVEI</div><div class="welcome-title">GEOFENCE</div><div class="welcome-subtitle">AUTONOMOUS TRACK DESIGN SYSTEM</div><div class="welcome-rule"></div><div class="welcome-hint">DESIGN YOUR COURSE. SEND IT TO THE CAR.</div><button class="welcome-continue" id="welcomeContinue">Continue →</button></div></div>
+
+<div id="appToast" class="app-toast" role="status" aria-live="polite"></div>
 
 <header>
     <button class="car-btn" id="activateTrackButton">
@@ -577,6 +586,15 @@ header{min-height:86px}
 
 <script>
 
+    const toast = document.getElementById("appToast");
+    let toastTimer = null;
+    function showToast(message, kind = "info") {
+        toast.textContent = message;
+        toast.className = "app-toast visible " + kind;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("visible"), 3200);
+    }
+
     const welcomeScreen = document.getElementById('welcomeScreen');
     const mainMenu = document.getElementById('mainMenu');
     const workspaceGrid = document.getElementById('workspaceGrid');
@@ -656,7 +674,7 @@ header{min-height:86px}
 
             createBound("outer");
 
-            alert(
+            showToast(
                 "New Outer Bound created.\n\n" +
                 "Click the map or use My Location to add points."
             );
@@ -673,7 +691,7 @@ header{min-height:86px}
 
             createBound("inner");
 
-            alert(
+            showToast(
                 "New Inner Bound created.\n\n" +
                 "Click the map or use My Location to add points."
             );
@@ -741,7 +759,7 @@ header{min-height:86px}
         // Don't add points to a finished bound.
         if (currentBound.finished) {
 
-            alert(
+            showToast(
                 "This bound is finished.\n\n" +
                 "Create a new bound to add more points."
             );
@@ -1002,7 +1020,7 @@ header{min-height:86px}
 
             if (!currentBound) {
 
-                alert(
+                showToast(
                     "Create an Outer or Inner Bound first."
                 );
 
@@ -1012,7 +1030,7 @@ header{min-height:86px}
 
             if (currentBound.markers.length < 3) {
 
-                alert(
+                showToast(
                     "A bound needs at least 3 points."
                 );
 
@@ -1028,7 +1046,7 @@ header{min-height:86px}
 
             updateStatus();
 
-            alert(
+            showToast(
                 capitalize(currentType) +
                 " Bound finished!"
             );
@@ -1045,7 +1063,7 @@ header{min-height:86px}
 
             if (!navigator.geolocation) {
 
-                alert(
+                showToast(
                     "Your browser does not support location services."
                 );
 
@@ -1106,7 +1124,7 @@ header{min-height:86px}
 
                     console.error(error);
 
-                    alert(
+                    showToast(
                         "Could not get your location.\n\n" +
                         "Make sure location permission is enabled " +
                         "for this website."
@@ -1546,7 +1564,7 @@ header{min-height:86px}
             const bounds = getMapBounds();
 
             if (bounds.error) {
-                alert(bounds.error);
+                showToast(bounds.error);
                 return;
             }
 
@@ -1566,7 +1584,7 @@ header{min-height:86px}
                 .eq("id", 1);
 
             if (error) {
-                alert("Could not send to the car: " + error.message);
+                showToast("Could not send to the car: " + error.message);
             }
 
             await showActiveTrack();
