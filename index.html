@@ -575,6 +575,8 @@ body.menu-active #workspaceSidebar{display:none!important}
 </style>
 <style>
 /* Bound creation controls and per-bound point list. */
+.finish-track-button{width:100%;min-height:46px;margin-top:4px;border:1px solid #8fbaff;border-radius:10px;background:#dcecff;color:#0b1a2c;font-weight:850;letter-spacing:.04em}
+.finish-track-button[hidden]{display:none!important}
 .sidebar-topline{display:flex!important;align-items:center!important;gap:0!important}
 #workspaceHeading{flex:1}
 .toolbar-finish-button{margin-left:auto;min-height:40px;padding:0 13px;border:1px solid #8fbaff;border-radius:9px;background:#dcecff;color:#0b1a2c;font-size:12px;font-weight:850;white-space:nowrap}
@@ -2056,6 +2058,10 @@ body.create-active #finishButton[hidden]{display:none!important}
 
             openLoadModal();
         });
+
+    document.getElementById("finishTrackButton").addEventListener("click", function () {
+        openModal("save");
+    });
 
 
     // ==========================================
