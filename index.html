@@ -336,9 +336,12 @@
             }
         }
     </style>
+<style>:root{color-scheme:dark;--bg:#080d17;--panel:#101a2a;--line:#26364d;--text:#edf4ff}html,body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}header{background:#0b121f;border-bottom:1px solid var(--line)}header h1{letter-spacing:.12em;font-size:18px}#status,#trackStatus{color:#9db2cb}#map{height:64vh;min-height:380px}.controls,.track-buttons,.coordinates-container{background:var(--bg);gap:10px;padding:14px 18px}.controls{grid-template-columns:repeat(4,minmax(0,1fr))}.track-buttons{padding-bottom:0}.coordinate-box,.instructions{background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--text)}textarea,.modal-card input,.modal-card select{background:#091321;color:var(--text);border:1px solid var(--line);border-radius:8px}button{border:1px solid #30445f;border-radius:10px;min-height:44px;font-weight:650}button:hover{opacity:1;filter:brightness(1.2)}.car-btn{background:#56d6a0;color:#071b16}.outer-btn{background:#183c68}.inner-btn{background:#55331f}.location-btn{background:#153d47}.finish-btn{background:#28395d}.save-btn{background:#233d68}.load-btn{background:#29384b}.modal-card{background:#111d2e;color:var(--text);border:1px solid #30445f;border-radius:16px}.modal-overlay{background:#02070ecc;backdrop-filter:blur(8px)}#welcomeScreen{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;background:radial-gradient(ellipse at center,#17365a,#0b1729 45%,#070c15);transition:opacity .5s,visibility .5s}.welcome-content{text-align:center;padding:24px}.welcome-title{font-size:clamp(48px,10vw,88px);letter-spacing:.12em;font-weight:900;margin:18px 0 8px}.welcome-kicker{color:#82baff;letter-spacing:.3em;font-size:11px}.welcome-subtitle,.welcome-hint{color:#9db2cb;letter-spacing:.18em;font-size:12px}.welcome-rule{height:3px;width:52px;background:#4d9cff;margin:26px auto}.welcome-continue{margin-top:24px;background:#e8f2ff;color:#0a1728;border:0;border-radius:999px;padding:13px 26px}.dismissed{opacity:0;visibility:hidden;pointer-events:none}@media(max-width:760px){header{grid-template-columns:1fr auto;grid-template-areas:"title using" "car car";gap:9px;padding:12px}header h1{font-size:15px}.car-btn{width:100%}#map{height:54vh;min-height:320px}.controls{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px}.coordinates-container{grid-template-columns:1fr;padding:8px 10px}.track-buttons{padding:10px 10px 0}button{min-height:46px;font-size:12px;padding:10px 8px}}@media(orientation:landscape) and (max-height:560px){#map{height:58vh;min-height:220px}}
+</style>
 </head>
 
 <body>
+<div id="welcomeScreen" tabindex="0" aria-label="Continue to Geofence"><div class="welcome-content"><div class="welcome-kicker">EPICS · EVEI</div><div class="welcome-title">GEOFENCE</div><div class="welcome-subtitle">AUTONOMOUS TRACK DESIGN SYSTEM</div><div class="welcome-rule"></div><div class="welcome-hint">DESIGN YOUR COURSE. SEND IT TO THE CAR.</div><button class="welcome-continue" id="welcomeContinue">Continue →</button></div></div>
 
 <header>
     <button class="car-btn" id="activateTrackButton">
@@ -465,6 +468,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
 <script>
+
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    document.getElementById('welcomeContinue').addEventListener('click', () => welcomeScreen.classList.add('dismissed'));
+    welcomeScreen.addEventListener('click', e => { if(e.target === welcomeScreen) welcomeScreen.classList.add('dismissed'); });
 
     // ==========================================
     // MAP
