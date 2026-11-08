@@ -487,15 +487,11 @@ body.menu-active #workspaceSidebar{display:none}
 .menu-card{width:min(680px,100%);padding:26px 22px;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;text-align:center;overflow:visible}
 .menu-prompt{font-size:clamp(15px,2vw,19px);font-weight:700;letter-spacing:.13em;color:#fff;text-shadow:0 2px 14px #000;margin:0 0 34px}
 .menu-actions{display:flex;justify-content:center;align-items:center;gap:clamp(14px,4vw,34px);margin:0}
-.menu-choice{display:flex;align-items:center;justify-content:center;gap:10px;width:min(220px,42vw);min-height:62px;padding:14px 18px;border:1px solid #d0e0f477;border-radius:9px;background:rgba(5,15,28,.84);color:#f4f8ff;text-align:center;box-shadow:0 8px 28px #0007;backdrop-filter:blur(8px);transition:transform .48s cubic-bezier(.2,.8,.2,1),opacity .42s,background .2s,border-color .2s}
+.menu-choice{display:flex;align-items:center;justify-content:center;gap:10px;width:min(220px,42vw);min-height:62px;padding:14px 18px;border:1px solid #d0e0f477;border-radius:9px;background:rgba(5,15,28,.84);color:#f4f8ff;text-align:center;box-shadow:0 8px 28px #0007;backdrop-filter:blur(8px)}
 .menu-choice strong{font-size:15px;white-space:nowrap}
 .menu-choice .choice-icon{width:auto;height:auto;background:transparent;color:#a8ceff;font-size:20px}
 .menu-load .choice-icon{background:transparent;color:#ffd09a}
 .menu-choice:hover{border-color:#9bcaff;background:rgba(15,36,60,.94)}
-.main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{position:fixed;top:18px;right:18px;z-index:3;width:auto;min-width:160px;min-height:48px;transform:translate(0,0);background:rgba(5,15,28,.94)}
-.main-menu.choice-create #menuLoadButton,.main-menu.choice-load #menuCreateButton{opacity:0;transform:translateX(-120vw)}
-.main-menu.choice-create .menu-prompt,.main-menu.choice-load .menu-prompt{opacity:0;transition:opacity .2s}
-.main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{transition:all .48s cubic-bezier(.2,.8,.2,1)}
 @media(max-width:520px){.menu-actions{flex-direction:column;gap:14px}.menu-choice{width:min(280px,82vw)}.welcome-content{top:35%}.welcome-hint{top:70vh}}
 </style>
 <style>/* Hide Leaflet's default + / - zoom buttons */
@@ -536,30 +532,6 @@ body.menu-active #workspaceSidebar{display:none}
 #workspaceSidebar{top:12px!important}
 </style>
 <style>
-/* Menu selection glides into the workspace header at the upper-left. */
-.main-menu .menu-card{transition:background .7s ease,border-color .7s ease,box-shadow .7s ease}
-.main-menu .menu-prompt{transition:opacity .62s ease,transform .62s ease}
-.main-menu .menu-actions{transition:opacity .62s ease}
-.main-menu.choice-create #menuCreateButton,
-.main-menu.choice-load #menuLoadButton{
-  position:fixed;top:12px;left:12px;right:auto;z-index:2600;
-  width:auto;min-width:0;min-height:42px;height:42px;
-  justify-content:flex-start;padding:0 14px;border-radius:8px;
-  background:rgba(23,40,62,.96);border-color:#344b67;
-  box-shadow:none;transform:translate(0,0);
-}
-.main-menu.choice-create #menuLoadButton,
-.main-menu.choice-load #menuCreateButton{
-  opacity:0;transform:translateY(10px) scale(.97);pointer-events:none;
-}
-.main-menu.choice-create .menu-prompt,
-.main-menu.choice-load .menu-prompt{opacity:0;transform:translateY(-8px)}
-.main-menu.choice-create .menu-card,
-.main-menu.choice-load .menu-card{
-  background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none;
-}
-.main-menu.choice-create .menu-actions,
-.main-menu.choice-load .menu-actions{opacity:1}
 body.menu-active #toggleButton,
 body.menu-active #locationButton,
 body.menu-active #finishButton{display:none!important}
@@ -2161,13 +2133,11 @@ body.menu-active #workspaceSidebar{display:none!important}
     function chooseMenuAction(mode) {
         if (menuChoiceInProgress) return;
         menuChoiceInProgress = true;
-        mainMenu.classList.remove("choice-create","choice-load");
         mainMenu.classList.add(mode === "create" ? "choice-create" : "choice-load");
         // Let the selected menu button glide to the same top-left position as
         // the workspace header while the prompt and unused choice fade away.
         window.setTimeout(() => {
-            mainMenu.classList.remove("choice-create","choice-load");
-            showWorkspace(mode);
+                showWorkspace(mode);
             menuChoiceInProgress = false;
         }, 760);
     }
@@ -2181,7 +2151,6 @@ body.menu-active #workspaceSidebar{display:none!important}
         document.getElementById("locationButton").hidden = true;
         document.body.classList.remove("create-active","load-active");
         document.body.classList.add("menu-active");
-        mainMenu.classList.remove("choice-create","choice-load");
         mainMenu.hidden = false;
         requestAnimationFrame(() => requestAnimationFrame(() => map.invalidateSize({pan:false})));
     });
