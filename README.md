@@ -1,85 +1,65 @@
-# EPICS EVEI Geofence — Full Pipeline
+# Geofence
 
-No CSV download, no manual file transfer. Draw a polygon on the website →
-it's saved straight into `coordinates.csv` on the computer → your Pico
-script picks up the change automatically and re-sends it over serial.
+**Website:** https://renbb1016.github.io/Geofence/
+
+Draw the track boundaries on the website, and the computer connected to the
+car gets them automatically. No editing files by hand.
+
+## How it works
+
+1. You draw the outer and inner boundaries on the website and press **Set Final Bounds For Car**.
+2. The boundaries are stored online in a Supabase database.
+3. When you run `computer_end_code.py` on the laptop, it copies them from the database
+   into `coordinates.csv`.
+4. It then sends `coordinates.csv` to the Pico.
+
+```
+Website  ->  Supabase  ->  computer_end_code.py  ->  coordinates.csv  ->  Pico
+```
+
+## Using the website
+
+1. Click **+ New Outer Bound**, then click the map (or press **My Location**) to drop at least 3 pins.
+2. Click **Finish Current Bound**.
+3. Do the same with **+ New Inner Bound** (optional).
+4. Click the green **Set Final Bounds For Car** button at the top. The top right shows what the car is using.
+
+Made a mistake? Hover over a pin (or tap it on a phone) and click the red **×** to delete just that pin, or drag
+the pin to move it.
+
+Saving is optional, for tracks you want to reuse:
+- **Save Track**: type a name and press Enter. Saving with an existing name updates that track.
+- **Load Track**: pick a track and press Enter. Then press **Set Final Bounds For Car** to send it.
+- **Delete a track**: in **Load Track**, pick it and click the 🗑 trash can, then **Yes, delete** (or **No** to go back).
+
+Outer bound pins are blue and inner bound pins are orange.
+
+Only the first outer bound and the first inner bound are used.
+
+## Running it on the laptop
+
+First time only:
+- Copy `.env.example` to `.env` and fill in the Supabase URL and anon key.
+
+Every time:
+```
+python computer_end_code.py
+```
+
+The boundaries are only fetched when the program starts, so restart it after
+setting new ones on the website.
+
+If the internet is down, the program prints a warning and sends the last saved
+`coordinates.csv`, so check for that warning if the car should be using new
+boundaries. It also refuses to save bad or incomplete boundaries.
 
 ## Files
 
-| File | Runs on | Purpose |
-|---|---|---|
-| `server.py` | Computer | Serves `index.html`, writes `coordinates.csv` when you press "Finish Polygon" |
-| `index.html` | Browser | The map — same as before, `fetch()`s points to the server instead of just alerting |
-| `coordinates.csv` | Computer | Auto-created/updated by `server.py`, in `OUTER`/`INNER` label format |
-| `computer_end.py` | Computer | Your serial handshake + sensor-logging code, now with a background thread that watches `coordinates.csv` and auto-resends updated coordinates to the Pico |
+| File | What it does |
+|------|--------------|
+| `index.html` | The website |
+| `computer_end_code.py` | Copies the selected track from Supabase into `coordinates.csv`, sends it to the Pico and logs GPS data |
+| `supabase/schema.sql` | Sets up the database (paste into Supabase SQL Editor and run once) |
+| `.env.example` | Template for the laptop's settings |
 
-## One-time setup
-
-```
-pip install flask pyserial
-```
-
-## Running it
-
-1. **Plug the Pico into the computer via USB**, on whatever COM port
-   `computer_end.py` is configured for (currently `COM6` — change it in
-   `initialize()` if yours differs).
-
-2. **Start the web server:**
-   ```
-   python server.py
-   ```
-   Open `http://localhost:5000`, draw the outer and inner boundaries, press
-   "Finish Polygon" for each. You'll see a green "✓ saved" message once
-   `coordinates.csv` has been written — no download, no copying files.
-
-3. **Start the computer-end script** (separate terminal, can run before or
-   after step 2 — it'll pick up whatever's in `coordinates.csv` once it's
-   there):
-   ```
-   python computer_end.py
-   ```
-   It sends `START`, waits for `listening...`, sends the current
-   coordinates, then keeps running: one thread logs the Pico's sensor
-   stream to `datalog<timestamp>.txt`, another watches `coordinates.csv`
-   and automatically re-sends it to the Pico whenever the website saves an
-   updated polygon.
-
-4. **Redraw anytime.** Go back to the website, adjust a polygon, press
-   "Finish Polygon" again — within ~1 second `computer_end.py` notices the
-   file changed and sends the new coordinates to the Pico, no restart
-   needed.
-
-## One important thing to verify on the Pico side
-
-`computer_end.py`'s auto-update re-sends the coordinate string directly
-over the already-open serial connection, **without** repeating the `START`
-/ `listening...` handshake. That only works if your Pico firmware checks
-for new incoming data on every loop iteration (not just once at boot,
-right after printing `listening...`). If your current firmware only reads
-coordinates that one time, it'll ignore the auto-update sends — in that
-case, either add a "check for new data" step to the Pico's main loop, or
-tell me and I'll change the watcher to redo the full handshake on every
-update instead (slower, but doesn't require touching the Pico code).
-
-## Other notes
-
-- **CSV format**: `coordinates.csv` looks like:
-  ```
-  OUTER
-  40.423700,-86.921200
-  40.423800,-86.921300
-  40.423650,-86.921100
-  INNER
-  40.423720,-86.921220
-  ...
-  ```
-  `get_coordinates()` flattens this into one comma-separated string,
-  keeping `OUTER`/`INNER` as labels and taking the absolute value of every
-  number (so make sure your Pico firmware knows the hemisphere/sign
-  convention it's expecting, since the sign is dropped here same as in
-  your original script).
-- **Same computer only, for now**: `server.py` binds to `localhost`. If you
-  ever need to draw boundaries from a phone while the Pico stays wired to a
-  separate computer, change `app.run(host=...)` to `"0.0.0.0"` in
-  `server.py` and open the page using that computer's LAN IP instead.
+Never put the Supabase `service_role` / secret key in any of these files.

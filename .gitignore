@@ -1,0 +1,5 @@
+.env
+datalog*.txt
+.coordinates_*.tmp
+__pycache__/
+coordinates.csv
