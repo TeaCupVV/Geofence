@@ -441,10 +441,34 @@ body.welcome-active #map{position:absolute;inset:0;width:100%;height:100%;min-he
 body.welcome-active #workspaceSidebar{display:none}
 #welcomeScreen{z-index:3000}
 </style>
+<style>
+/* Welcome and menu layout based on the team's hand-drawn UI reference */
+#welcomeScreen{background:linear-gradient(to bottom,rgba(3,9,18,.96) 0%,rgba(3,9,18,.78) 38%,rgba(3,9,18,.36) 72%,rgba(3,9,18,.04) 100%);backdrop-filter:none}
+.welcome-content{position:absolute;top:34%;left:50%;transform:translate(-50%,-50%);width:min(92vw,760px);padding:20px;text-align:center}
+.welcome-title{font-size:clamp(48px,9vw,86px);letter-spacing:.16em;font-weight:850;margin:0 0 12px;color:#f4f8ff;text-shadow:0 4px 24px #0008}
+.welcome-subtitle{font-size:clamp(11px,1.6vw,14px);letter-spacing:.28em;color:#d1dced}
+.welcome-hint{position:fixed;top:72vh;left:0;width:100%;font-size:11px;letter-spacing:.25em;color:#e0e9f7;text-shadow:0 2px 12px #000}
+.welcome-continue{position:absolute;left:50%;bottom:7vh;transform:translateX(-50%);width:44px;height:44px;min-height:44px;padding:0;border:1px solid #c8d8eb88;border-radius:50%;background:#07132188;color:#fff;font-size:22px;backdrop-filter:blur(8px)}
+.main-menu{position:fixed;inset:0;z-index:2500;display:grid;place-items:center;padding:22px;background:rgba(3,9,18,.12);backdrop-filter:none}
+.menu-card{width:min(680px,100%);padding:26px 22px;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;text-align:center;overflow:visible}
+.menu-prompt{font-size:clamp(15px,2vw,19px);font-weight:650;letter-spacing:.13em;color:#f4f8ff;text-shadow:0 2px 12px #000b;margin:0 0 34px}
+.menu-actions{display:flex;justify-content:center;align-items:center;gap:clamp(14px,4vw,34px);margin:0}
+.menu-choice{display:flex;align-items:center;justify-content:center;gap:10px;width:min(220px,42vw);min-height:62px;padding:14px 18px;border:1px solid #c5d8f477;border-radius:9px;background:rgba(5,15,28,.76);color:#f4f8ff;text-align:center;box-shadow:0 8px 28px #0005;backdrop-filter:blur(8px);transition:transform .48s cubic-bezier(.2,.8,.2,1),opacity .42s,background .2s,border-color .2s}
+.menu-choice strong{font-size:15px;white-space:nowrap}
+.menu-choice .choice-icon{width:auto;height:auto;background:transparent;color:#a8ceff;font-size:20px}
+.menu-load .choice-icon{background:transparent;color:#ffd09a}
+.menu-choice:hover{border-color:#9bcaff;background:rgba(15,36,60,.9)}
+.main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{position:fixed;top:18px;right:18px;z-index:3;width:auto;min-width:160px;min-height:48px;transform:translate(0,0);background:rgba(5,15,28,.9)}
+.main-menu.choice-create #menuLoadButton{opacity:0;transform:translateX(-120vw)}
+.main-menu.choice-load #menuCreateButton{opacity:0;transform:translateX(-120vw)}
+.main-menu.choice-create .menu-prompt,.main-menu.choice-load .menu-prompt{opacity:0;transition:opacity .2s}
+.main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{transition:all .48s cubic-bezier(.2,.8,.2,1)}
+@media(max-width:520px){.menu-actions{flex-direction:column;gap:14px}.menu-choice{width:min(280px,82vw)}.welcome-content{top:35%}.welcome-hint{top:70vh}}
+</style>
 </head>
 
 <body class="welcome-active">
-<div id="welcomeScreen" tabindex="0" aria-label="Continue to Geofence"><div class="welcome-content"><div class="welcome-kicker">EPICS · EVEI</div><div class="welcome-title">GEOFENCE</div><div class="welcome-subtitle">AUTONOMOUS TRACK DESIGN SYSTEM</div><div class="welcome-rule"></div><div class="welcome-hint">DESIGN YOUR COURSE. SEND IT TO THE CAR.</div><button class="welcome-continue" id="welcomeContinue">Continue →</button></div></div>
+<div id="welcomeScreen" tabindex="0" aria-label="Swipe up to continue"><div class="welcome-content"><div class="welcome-title">GEOFENCE</div><div class="welcome-subtitle">PROVIDED BY EPICS EVEI</div><div class="welcome-hint">SWIPE UP TO CONTINUE</div></div><button class="welcome-continue" id="welcomeContinue" aria-label="Continue">↑</button></div>
 
 <div id="appToast" class="app-toast" role="status" aria-live="polite"></div>
 
@@ -461,14 +485,11 @@ body.welcome-active #workspaceSidebar{display:none}
 
 <div id="mainMenu" class="main-menu" hidden>
     <div class="menu-card">
-      <div class="menu-eyebrow">EPICS · EVEI</div>
-      <h2>Track Workspace</h2>
-      <p>Design a new course or open a saved track.</p>
+      <div class="menu-prompt">WHAT WOULD YOU LIKE TO DO?</div>
       <div class="menu-actions">
-        <button id="menuCreateButton" class="menu-choice menu-create"><span class="choice-icon">＋</span><span><strong>Create Track</strong><small>Draw outer and inner boundaries</small></span><span class="choice-arrow">→</span></button>
-        <button id="menuLoadButton" class="menu-choice menu-load"><span class="choice-icon">↗</span><span><strong>Load Track</strong><small>Preview and send a saved course</small></span><span class="choice-arrow">→</span></button>
+        <button id="menuCreateButton" class="menu-choice menu-create"><span class="choice-icon">＋</span><strong>Create Track</strong></button>
+        <button id="menuLoadButton" class="menu-choice menu-load"><span class="choice-icon">↗</span><strong>Load Track</strong></button>
       </div>
-      <div class="menu-footnote">MAP-BASED COURSE DESIGN</div>
     </div>
   </div>
 
@@ -619,6 +640,12 @@ body.welcome-active #workspaceSidebar{display:none}
         document.body.classList.remove('welcome-active');
         welcomeScreen.classList.add('dismissed');
         mainMenu.hidden = false;
+        setTimeout(() => map.invalidateSize(), 100);
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                map.setView([position.coords.latitude, position.coords.longitude], 16);
+            }, () => {}, {enableHighAccuracy:false, timeout:5000, maximumAge:300000});
+        }
     }
     document.getElementById('welcomeContinue').addEventListener('click', dismissWelcome);
     welcomeScreen.addEventListener('pointerdown', e => {
@@ -2028,8 +2055,17 @@ body.welcome-active #workspaceSidebar{display:none}
         if (isLoad) refreshSavedTrackPanel();
     }
 
-    document.getElementById("menuCreateButton").addEventListener("click", () => showWorkspace("create"));
-    document.getElementById("menuLoadButton").addEventListener("click", () => showWorkspace("load"));
+    function chooseMenuAction(mode) {
+        mainMenu.classList.remove("choice-create","choice-load");
+        mainMenu.classList.add(mode === "create" ? "choice-create" : "choice-load");
+        setTimeout(() => {
+            mainMenu.hidden = true;
+            mainMenu.classList.remove("choice-create","choice-load");
+            showWorkspace(mode);
+        }, 520);
+    }
+    document.getElementById("menuCreateButton").addEventListener("click", () => chooseMenuAction("create"));
+    document.getElementById("menuLoadButton").addEventListener("click", () => chooseMenuAction("load"));
     document.getElementById("backToMenuButton").addEventListener("click", () => {
         clearTrackPreview();
         workspaceGrid.hidden = true;
