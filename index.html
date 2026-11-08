@@ -338,6 +338,82 @@
     </style>
 <style>:root{color-scheme:dark;--bg:#080d17;--panel:#101a2a;--line:#26364d;--text:#edf4ff}html,body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}header{background:#0b121f;border-bottom:1px solid var(--line)}header h1{letter-spacing:.12em;font-size:18px}#status,#trackStatus{color:#9db2cb}#map{height:64vh;min-height:380px}.controls,.track-buttons,.coordinates-container{background:var(--bg);gap:10px;padding:14px 18px}.controls{grid-template-columns:repeat(4,minmax(0,1fr))}.track-buttons{padding-bottom:0}.coordinate-box,.instructions{background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--text)}textarea,.modal-card input,.modal-card select{background:#091321;color:var(--text);border:1px solid var(--line);border-radius:8px}button{border:1px solid #30445f;border-radius:10px;min-height:44px;font-weight:650}button:hover{opacity:1;filter:brightness(1.2)}.car-btn{background:#56d6a0;color:#071b16}.outer-btn{background:#183c68}.inner-btn{background:#55331f}.location-btn{background:#153d47}.finish-btn{background:#28395d}.save-btn{background:#233d68}.load-btn{background:#29384b}.modal-card{background:#111d2e;color:var(--text);border:1px solid #30445f;border-radius:16px}.modal-overlay{background:#02070ecc;backdrop-filter:blur(8px)}#welcomeScreen{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;background:radial-gradient(ellipse at center,#17365a,#0b1729 45%,#070c15);transition:opacity .5s,visibility .5s}.welcome-content{text-align:center;padding:24px}.welcome-title{font-size:clamp(48px,10vw,88px);letter-spacing:.12em;font-weight:900;margin:18px 0 8px}.welcome-kicker{color:#82baff;letter-spacing:.3em;font-size:11px}.welcome-subtitle,.welcome-hint{color:#9db2cb;letter-spacing:.18em;font-size:12px}.welcome-rule{height:3px;width:52px;background:#4d9cff;margin:26px auto}.welcome-continue{margin-top:24px;background:#e8f2ff;color:#0a1728;border:0;border-radius:999px;padding:13px 26px}.dismissed{opacity:0;visibility:hidden;pointer-events:none}@media(max-width:760px){header{grid-template-columns:1fr auto;grid-template-areas:"title using" "car car";gap:9px;padding:12px}header h1{font-size:15px}.car-btn{width:100%}#map{height:54vh;min-height:320px}.controls{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px}.coordinates-container{grid-template-columns:1fr;padding:8px 10px}.track-buttons{padding:10px 10px 0}button{min-height:46px;font-size:12px;padding:10px 8px}}@media(orientation:landscape) and (max-height:560px){#map{height:58vh;min-height:220px}}
 </style>
+<style>
+/* Redesigned workspace shell */
+[hidden]{display:none!important}
+body{background:#080d17;color:#edf4ff}
+.main-menu{position:fixed;inset:0;z-index:2500;display:grid;place-items:center;padding:22px;background:linear-gradient(135deg,rgba(6,12,23,.91),rgba(10,27,47,.94)),url('https://tile.openstreetmap.org/15/5241/12663.png') center/cover}
+.menu-card{width:min(620px,100%);padding:clamp(24px,5vw,48px);border:1px solid #30445f;border-radius:24px;background:rgba(12,23,39,.94);box-shadow:0 24px 80px #0009;backdrop-filter:blur(16px)}
+.menu-eyebrow,.sidebar-eyebrow{font-size:10px;letter-spacing:.25em;color:#78b9ff;font-weight:800}
+.menu-card h2{font-size:clamp(28px,5vw,42px);margin:12px 0 8px;letter-spacing:-.04em}
+.menu-card>p,.panel-help,.panel-note{color:#9db2cb;line-height:1.55}
+.menu-actions{display:grid;gap:12px;margin:28px 0}
+.menu-choice{display:grid;grid-template-columns:46px 1fr 20px;align-items:center;gap:14px;text-align:left;padding:18px;border:1px solid #2c4664;background:#14243a;border-radius:15px;min-height:82px}
+.menu-choice:hover{border-color:#75b9ff;background:#192d48}
+.menu-choice strong,.menu-choice small{display:block}
+.menu-choice strong{font-size:16px;margin-bottom:5px}
+.menu-choice small{font-size:12px;color:#a9bdd5;font-weight:400}
+.choice-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#203f64;color:#9acbff;font-size:24px}
+.menu-load .choice-icon{background:#49351f;color:#ffbf79}
+.choice-arrow{font-size:20px;color:#85bfff}
+.menu-footnote{font-size:9px;letter-spacing:.2em;color:#6f829b}
+.workspace-grid{height:calc(100vh - 86px);min-height:540px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0}
+#map{height:100%;min-height:0}
+.workspace-sidebar{background:#0d1726;border-left:1px solid #26364d;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:16px}
+.sidebar-topline{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid #26364d}
+.sidebar-topline h2{margin:5px 0 0;font-size:20px}
+.back-menu-button{min-height:38px;padding:8px 12px;background:#17283e;border-color:#344b67}
+#createPanel .track-buttons,#createPanel .controls,#createPanel .coordinates-container{display:grid;grid-template-columns:1fr;background:transparent;padding:0;gap:9px}
+#createPanel .track-buttons{grid-template-columns:1fr 1fr}
+#createPanel .controls{grid-template-columns:1fr 1fr}
+#createPanel .coordinates-container{grid-template-columns:1fr;padding:0}
+#createPanel .coordinate-box{padding:12px}
+#createPanel .coordinate-box h3{font-size:13px;margin:0 0 8px}
+#createPanel textarea{height:105px}
+#createPanel .instructions{margin:0}
+.load-panel{display:flex;flex-direction:column;gap:12px}
+.panel-help{font-size:13px;margin:0}
+.saved-track-list{display:grid;gap:8px;max-height:42vh;overflow:auto}
+.saved-track-item{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;background:#14243a;border:1px solid #2b405b;padding:13px;border-radius:11px}
+.saved-track-item.selected{border-color:#68b5ff;background:#19314d}
+.saved-track-item small{display:block;color:#9db2cb;font-size:11px;margin-top:4px}
+.saved-track-item .track-check{color:#83c2ff;font-size:18px}
+.empty-tracks{padding:16px;border:1px dashed #344b67;border-radius:12px;color:#9db2cb;font-size:13px}
+.load-actions{display:grid;gap:8px}
+.primary-action{background:#dcecff;color:#0b1a2c;border:0}
+.secondary-action{background:#1b3553}
+.send-action{background:#16583f;border-color:#267b5c}
+.panel-note{font-size:11px;margin:0}
+.leaflet-container{background:#101a2a}
+header{min-height:86px}
+@media(max-width:900px){
+ .workspace-grid{grid-template-columns:minmax(0,1fr) 300px}
+ .workspace-sidebar{padding:13px}
+}
+@media(max-width:700px){
+ header{min-height:0}
+ .workspace-grid{height:calc(100dvh - 104px);min-height:0;display:flex;flex-direction:column;position:relative}
+ #map{height:100%;min-height:0;flex:1}
+ .workspace-sidebar{position:absolute;z-index:700;left:10px;right:10px;bottom:10px;max-height:min(48dvh,430px);border:1px solid #40536b;border-radius:18px;padding:12px;background:rgba(10,19,32,.96);box-shadow:0 12px 40px #0008;backdrop-filter:blur(12px)}
+ .sidebar-topline{padding-bottom:8px}
+ .sidebar-topline h2{font-size:17px}
+ #createPanel .controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #createPanel .coordinates-container{max-height:120px;overflow:auto}
+ #createPanel textarea{height:75px}
+ .saved-track-list{max-height:20dvh}
+ .menu-card{border-radius:18px}
+ .menu-choice{min-height:76px;padding:14px}
+}
+@media(max-width:420px){
+ #createPanel .controls{grid-template-columns:1fr 1fr}
+ .workspace-sidebar{left:7px;right:7px;bottom:7px;padding:10px}
+}
+@media(orientation:landscape) and (max-height:560px) and (max-width:900px){
+ .workspace-grid{height:calc(100dvh - 72px);flex-direction:row}
+ #map{width:62%;height:100%}
+ .workspace-sidebar{left:auto;right:8px;top:8px;bottom:8px;width:36%;max-height:none}
+}
+</style>
 </head>
 
 <body>
@@ -356,8 +432,37 @@
     <div id="trackStatus">Connecting...</div>
 </header>
 
-<div id="map"></div>
+<div id="mainMenu" class="main-menu" hidden>
+    <div class="menu-card">
+      <div class="menu-eyebrow">EPICS · EVEI</div>
+      <h2>Track Workspace</h2>
+      <p>Design a new course or open a saved track.</p>
+      <div class="menu-actions">
+        <button id="menuCreateButton" class="menu-choice menu-create"><span class="choice-icon">＋</span><span><strong>Create Track</strong><small>Draw outer and inner boundaries</small></span><span class="choice-arrow">→</span></button>
+        <button id="menuLoadButton" class="menu-choice menu-load"><span class="choice-icon">↗</span><span><strong>Load Track</strong><small>Preview and send a saved course</small></span><span class="choice-arrow">→</span></button>
+      </div>
+      <div class="menu-footnote">MAP-BASED COURSE DESIGN</div>
+    </div>
+  </div>
 
+<div id="workspaceGrid" class="workspace-grid" hidden>
+<div id="map"></div>
+<aside id="workspaceSidebar" class="workspace-sidebar">
+  <div class="sidebar-topline">
+    <div><span class="sidebar-eyebrow">WORKSPACE</span><h2 id="workspaceHeading">Create Track</h2></div>
+    <button id="backToMenuButton" class="back-menu-button">← Menu</button>
+  </div>
+  <div id="loadPanel" class="load-panel" hidden>
+    <p class="panel-help">Choose a saved track to preview it on the map.</p>
+    <div id="savedTrackList" class="saved-track-list"><div class="empty-tracks">Loading saved tracks…</div></div>
+    <div class="load-actions">
+      <button id="previewTrackButton" class="secondary-action" disabled>Preview Track</button>
+      <button id="loadSelectedTrackButton" class="primary-action" disabled>Load Into Editor</button>
+      <button id="sendSelectedTrackButton" class="send-action" disabled>Send Track to Car</button>
+    </div>
+    <p class="panel-note">Sending a track updates the course the car is set to use. You’ll be asked to confirm first.</p>
+  </div>
+  <div id="createPanel">
 <div class="track-buttons">
 
     <button class="save-btn" id="saveTrackButton">
@@ -427,6 +532,9 @@
     </div>
 
 </div>
+  </div>
+</aside>
+</div>
 
 <div class="modal-overlay" id="modal" hidden>
     <div
@@ -470,8 +578,14 @@
 <script>
 
     const welcomeScreen = document.getElementById('welcomeScreen');
-    document.getElementById('welcomeContinue').addEventListener('click', () => welcomeScreen.classList.add('dismissed'));
-    welcomeScreen.addEventListener('click', e => { if(e.target === welcomeScreen) welcomeScreen.classList.add('dismissed'); });
+    const mainMenu = document.getElementById('mainMenu');
+    const workspaceGrid = document.getElementById('workspaceGrid');
+    function dismissWelcome() {
+        welcomeScreen.classList.add('dismissed');
+        mainMenu.hidden = false;
+    }
+    document.getElementById('welcomeContinue').addEventListener('click', dismissWelcome);
+    welcomeScreen.addEventListener('click', e => { if(e.target === welcomeScreen) dismissWelcome(); });
 
     // ==========================================
     // MAP
@@ -1831,6 +1945,146 @@
 
     updateCoordinates();
     updateStatus();
+
+    // ==========================================
+    // REDESIGNED WORKSPACE NAVIGATION
+    // ==========================================
+    let selectedSavedTrackId = null;
+    let previewLayers = [];
+
+    const createPanel = document.getElementById("createPanel");
+    const loadPanel = document.getElementById("loadPanel");
+    const workspaceHeading = document.getElementById("workspaceHeading");
+    const savedTrackList = document.getElementById("savedTrackList");
+    const previewTrackButton = document.getElementById("previewTrackButton");
+    const loadSelectedTrackButton = document.getElementById("loadSelectedTrackButton");
+    const sendSelectedTrackButton = document.getElementById("sendSelectedTrackButton");
+
+    function clearTrackPreview() {
+        previewLayers.forEach(layer => map.removeLayer(layer));
+        previewLayers = [];
+    }
+
+    function showWorkspace(mode) {
+        mainMenu.hidden = true;
+        workspaceGrid.hidden = false;
+        const isLoad = mode === "load";
+        workspaceHeading.textContent = isLoad ? "Load Track" : "Create Track";
+        createPanel.hidden = isLoad;
+        loadPanel.hidden = !isLoad;
+        document.getElementById("loadTrackButton").hidden = true;
+        document.getElementById("saveTrackButton").hidden = false;
+        clearTrackPreview();
+        setTimeout(() => map.invalidateSize(), 80);
+        if (isLoad) refreshSavedTrackPanel();
+    }
+
+    document.getElementById("menuCreateButton").addEventListener("click", () => showWorkspace("create"));
+    document.getElementById("menuLoadButton").addEventListener("click", () => showWorkspace("load"));
+    document.getElementById("backToMenuButton").addEventListener("click", () => {
+        clearTrackPreview();
+        workspaceGrid.hidden = true;
+        mainMenu.hidden = false;
+    });
+
+    function renderSavedTrackPanel() {
+        savedTrackList.innerHTML = "";
+        if (!savedTracks.length) {
+            savedTrackList.innerHTML = '<div class="empty-tracks">No saved tracks yet. Create and save a track first.</div>';
+            selectedSavedTrackId = null;
+            updateLoadActions();
+            return;
+        }
+        savedTracks.forEach(track => {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "saved-track-item" + (String(track.id) === String(selectedSavedTrackId) ? " selected" : "");
+            const title = document.createElement("span");
+            title.textContent = track.name;
+            const detail = document.createElement("small");
+            detail.textContent = (track.outer_bound?.length || 0) + " outer points · " + (track.inner_bound?.length || 0) + " inner points";
+            title.appendChild(detail);
+            const check = document.createElement("span");
+            check.className = "track-check";
+            check.textContent = String(track.id) === String(selectedSavedTrackId) ? "✓" : "›";
+            item.append(title, check);
+            item.addEventListener("click", () => {
+                selectedSavedTrackId = track.id;
+                renderSavedTrackPanel();
+            });
+            savedTrackList.appendChild(item);
+        });
+        updateLoadActions();
+    }
+
+    function updateLoadActions() {
+        const hasSelection = savedTracks.some(t => String(t.id) === String(selectedSavedTrackId));
+        previewTrackButton.disabled = !hasSelection;
+        loadSelectedTrackButton.disabled = !hasSelection;
+        sendSelectedTrackButton.disabled = !hasSelection || !db;
+    }
+
+    async function refreshSavedTrackPanel() {
+        savedTrackList.innerHTML = '<div class="empty-tracks">Loading saved tracks…</div>';
+        const problem = await refreshTracks();
+        if (problem) {
+            savedTrackList.innerHTML = '<div class="empty-tracks">Could not load tracks: ' + problem.replace(/[<>&"]/g, "") + '</div>';
+            updateLoadActions();
+            return;
+        }
+        if (!savedTracks.some(t => String(t.id) === String(selectedSavedTrackId))) {
+            selectedSavedTrackId = savedTracks.length ? savedTracks[0].id : null;
+        }
+        renderSavedTrackPanel();
+    }
+
+    function getSelectedSavedTrack() {
+        return savedTracks.find(t => String(t.id) === String(selectedSavedTrackId));
+    }
+
+    function previewSelectedTrack() {
+        const track = getSelectedSavedTrack();
+        if (!track) return;
+        clearTrackPreview();
+        if (track.outer_bound?.length) {
+            previewLayers.push(L.polygon(track.outer_bound, {color:"#55a7ff",weight:4,fillColor:"#3388ff",fillOpacity:.12,dashArray:"8 6"}).addTo(map));
+        }
+        if (track.inner_bound?.length) {
+            previewLayers.push(L.polygon(track.inner_bound, {color:"#ff9b4a",weight:4,fillColor:"#ff8b32",fillOpacity:.16,dashArray:"8 6"}).addTo(map));
+        }
+        if (previewLayers.length) map.fitBounds(L.featureGroup(previewLayers).getBounds(), {padding:[30,30]});
+    }
+
+    function loadSelectedTrackIntoEditor() {
+        const track = getSelectedSavedTrack();
+        if (!track) return;
+        clearTrackPreview();
+        clearAllBounds();
+        loadBound("outer", track.outer_bound || []);
+        loadBound("inner", track.inner_bound || []);
+        currentTrackName = track.name;
+        const allBounds = outerBounds.concat(innerBounds).filter(b => b.polygon);
+        if (allBounds.length) map.fitBounds(L.featureGroup(allBounds.map(b => b.polygon)).getBounds(), {padding:[30,30]});
+        updateCoordinates();
+        updateStatus();
+        showWorkspace("create");
+        document.getElementById("status").textContent = 'Loaded "' + track.name + '"';
+    }
+
+    previewTrackButton.addEventListener("click", previewSelectedTrack);
+    loadSelectedTrackButton.addEventListener("click", loadSelectedTrackIntoEditor);
+    sendSelectedTrackButton.addEventListener("click", async () => {
+        const track = getSelectedSavedTrack();
+        if (!track) return;
+        if (!window.confirm('Send "' + track.name + '" to the car? This will replace the active course.')) return;
+        loadSelectedTrackIntoEditor();
+        document.getElementById("activateTrackButton").click();
+    });
+
+    // Keep map dimensions correct when the browser rotates or resizes.
+    window.addEventListener("resize", () => {
+        if (!workspaceGrid.hidden) map.invalidateSize();
+    });
 
 </script>
 
