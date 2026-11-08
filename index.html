@@ -663,6 +663,7 @@ body.create-active #finishButton[hidden]{display:none!important}
       <button class="step-toggle-btn" id="toggleCoordinatesButton" type="button" aria-expanded="false">Show Coordinates</button>
       <button class="step-toggle-btn" id="toggleClearButton" type="button" aria-expanded="false">Clear</button>
     </div>
+    <button id="finishTrackButton" class="finish-track-button" type="button">Finish Track</button>
     <div class="clear-step-options" id="clearStepOptions" hidden>
       <button class="clear-outer-btn" id="clearOuterButton">Clear Outer Bound</button>
       <button class="clear-inner-btn" id="clearInnerButton">Clear Inner Bound</button>
@@ -885,6 +886,7 @@ body.create-active #finishButton[hidden]{display:none!important}
         title.textContent = titles[step] || "";
         document.getElementById("coordinatesPanel").hidden = step !== "coordinates";
         document.getElementById("clearStepOptions").hidden = step !== "clear";
+        document.getElementById("finishTrackButton").hidden = step !== null;
         document.getElementById("toggleCoordinatesButton").setAttribute("aria-expanded",String(step === "coordinates"));
         document.getElementById("toggleClearButton").setAttribute("aria-expanded",String(step === "clear"));
         if (step === "coordinates") updateCoordinates();
