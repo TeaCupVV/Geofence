@@ -484,6 +484,9 @@ body.menu-active #workspaceSidebar{display:none}
 .main-menu.choice-create #menuCreateButton,.main-menu.choice-load #menuLoadButton{transition:all .48s cubic-bezier(.2,.8,.2,1)}
 @media(max-width:520px){.menu-actions{flex-direction:column;gap:14px}.menu-choice{width:min(280px,82vw)}.welcome-content{top:35%}.welcome-hint{top:70vh}}
 </style>
+<style>/* Hide Leaflet's default + / - zoom buttons */
+.leaflet-control-zoom{display:none!important}
+</style>
 </head>
 
 <body class="welcome-active">
