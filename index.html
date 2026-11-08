@@ -429,9 +429,7 @@ header{min-height:86px}
 <div id="appToast" class="app-toast" role="status" aria-live="polite"></div>
 
 <header>
-    <button class="car-btn" id="activateTrackButton">
-        Set Final Bounds For Car
-    </button>
+    <button class="car-btn" id="activateTrackButton" hidden aria-hidden="true" tabindex="-1">Send selected track</button>
 
     <div class="header-title">
         <h1>EPICS EVEI Geofence</h1>
@@ -503,10 +501,6 @@ header{min-height:86px}
         📍 My Location
     </button>
 
-    <button class="toggle-btn" id="toggleButton">
-        Show / Hide Pins
-    </button>
-
     <button class="clear-outer-btn" id="clearOuterButton">
         Clear Outer Bounds
     </button>
@@ -544,6 +538,7 @@ header{min-height:86px}
 </div>
   </div>
 </aside>
+<button id="toggleButton" class="map-pin-toggle" type="button" aria-label="Hide pins" aria-pressed="true" title="Hide pins"><span class="pin-symbol" aria-hidden="true">📍</span></button>
 </div>
 
 <div class="modal-overlay" id="modal" hidden>
@@ -1153,7 +1148,10 @@ header{min-height:86px}
         .addEventListener("click", function () {
 
             pinsVisible = !pinsVisible;
-
+            const pinToggle = document.getElementById("toggleButton");
+            pinToggle.setAttribute("aria-pressed", String(pinsVisible));
+            pinToggle.setAttribute("aria-label", pinsVisible ? "Hide pins" : "Show pins");
+            pinToggle.title = pinsVisible ? "Hide pins" : "Show pins";
 
             const allBounds =
                 outerBounds.concat(innerBounds);
@@ -1992,6 +1990,7 @@ header{min-height:86px}
         workspaceHeading.textContent = isLoad ? "Load Track" : "Create Track";
         createPanel.hidden = isLoad;
         loadPanel.hidden = !isLoad;
+        document.getElementById("toggleButton").hidden = isLoad;
         document.getElementById("loadTrackButton").hidden = true;
         document.getElementById("saveTrackButton").hidden = false;
         clearTrackPreview();
