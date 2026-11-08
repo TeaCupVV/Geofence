@@ -888,6 +888,20 @@ body.create-active #finishButton[hidden]{display:none!important}
         document.getElementById("toggleCoordinatesButton").setAttribute("aria-expanded",String(step === "coordinates"));
         document.getElementById("toggleClearButton").setAttribute("aria-expanded",String(step === "clear"));
         if (step === "coordinates") updateCoordinates();
+
+        // Keep completed boundary outlines off the map while the user is
+        // viewing the main Create Track tools. Show them again only inside
+        // an Outer Bound or Inner Bound editor.
+        const showBoundaries = step === "outer" || step === "inner";
+        outerBounds.concat(innerBounds).forEach(bound => {
+            if (!bound.polygon) return;
+            if (showBoundaries && !map.hasLayer(bound.polygon)) {
+                bound.polygon.addTo(map);
+            } else if (!showBoundaries && map.hasLayer(bound.polygon)) {
+                map.removeLayer(bound.polygon);
+            }
+        });
+
         updateBoundPointList();
     }
     function discardActiveBound() {
