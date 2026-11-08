@@ -957,15 +957,13 @@ body.create-active #finishButton[hidden]{display:none!important}
         const panel = document.getElementById("boundPointsList");
         if (!panel) return;
         panel.replaceChildren();
-        if (!createPanelElement.classList.contains("step-coordinates")) {
-            panel.hidden = true;
-            return;
-        }
+        const isCoordinatesView = createPanelElement.classList.contains("step-coordinates");
+        const isBoundEditor = createPanelElement.classList.contains("step-outer") || createPanelElement.classList.contains("step-inner");
+        if (!isCoordinatesView && !isBoundEditor) { panel.hidden = true; return; }
         panel.hidden = false;
-        const allBounds = [
-            ...outerBounds.map((bound, index) => ({bound, label: "Outer Boundary " + (index + 1)})),
-            ...innerBounds.map((bound, index) => ({bound, label: "Inner Boundary " + (index + 1)}))
-        ];
+        const allBounds = isBoundEditor
+            ? (currentBound ? [{bound: currentBound, label: currentBound.type === "outer" ? "New Outer Boundary" : "New Inner Boundary"}] : [])
+            : [...outerBounds.map((bound, index) => ({bound, label: "Outer Boundary " + (index + 1)})), ...innerBounds.map((bound, index) => ({bound, label: "Inner Boundary " + (index + 1)}))];
         if (!allBounds.length) {
             const empty = document.createElement("small");
             empty.textContent = "No boundary pins yet.";
@@ -980,7 +978,7 @@ body.create-active #finishButton[hidden]{display:none!important}
             panel.appendChild(heading);
             if (!bound.markers.length) {
                 const empty = document.createElement("small");
-                empty.textContent = "No pins placed";
+                empty.textContent = "No pins placed yet";
                 empty.style.color = "#9db2cb";
                 panel.appendChild(empty);
             }
