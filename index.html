@@ -520,15 +520,22 @@ body.menu-active #workspaceSidebar{display:none}
 #createPanel .controls{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:9px!important}
 #createPanel .controls button{width:100%!important;min-height:44px!important;text-align:left!important}
 .bound-step-buttons,.utility-step-buttons{display:flex!important;flex-direction:column!important;gap:9px!important}
-#editorStepBack{display:none;width:100%;min-height:40px;background:#1a2b40;color:#edf5ff;border:1px solid #435873;border-radius:9px;text-align:left;padding:10px 12px}
-#createPanel.step-outer #editorStepBack,#createPanel.step-inner #editorStepBack,#createPanel.step-coordinates #editorStepBack,#createPanel.step-clear #editorStepBack{display:block}
+.editor-substep-header{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:5px}
+.editor-substep-header[hidden]{display:none!important}
+.editor-substep-header h3{margin:0;font-size:19px;font-weight:800;color:#edf4ff}
+.editor-back-arrow{display:grid!important;place-items:center;width:42px!important;min-width:42px;min-height:42px!important;padding:0!important;background:#1a2b40;color:#edf5ff;border:1px solid #435873;border-radius:10px!important;text-align:center;font-size:25px!important;font-weight:700}
 #createPanel.step-outer .bound-step-buttons button:not(#newOuterButton),#createPanel.step-inner .bound-step-buttons button:not(#newInnerButton){display:none!important}
 #createPanel.step-outer .utility-step-buttons,#createPanel.step-inner .utility-step-buttons{display:none!important}
-
-#createPanel.step-coordinates .controls>*:not(#editorStepBack),#createPanel.step-clear .controls>*:not(#editorStepBack){display:none!important}
+#createPanel.step-outer .editor-substep-header,#createPanel.step-inner .editor-substep-header,#createPanel.step-coordinates .editor-substep-header,#createPanel.step-clear .editor-substep-header{display:flex}
+#createPanel.step-outer .bound-step-buttons,#createPanel.step-inner .bound-step-buttons{display:flex}
+#createPanel.step-outer .utility-step-buttons,#createPanel.step-inner .utility-step-buttons{display:none!important}
+#createPanel.step-coordinates .controls>*:not(.editor-substep-header),#createPanel.step-clear .controls>*:not(.editor-substep-header){display:none!important}
 #createPanel.step-coordinates #coordinatesPanel{display:grid!important}
 #createPanel.step-clear #clearStepOptions{display:grid!important}
 #coordinatesPanel[hidden],#clearStepOptions[hidden]{display:none!important}
+#createPanel:not(.step-coordinates) #coordinatesPanel{display:none!important}
+#createPanel:not(.step-clear) #clearStepOptions{display:none!important}
+#boundPointsList[hidden]{display:none!important}
 #workspaceSidebar{top:12px!important}
 </style>
 <style>
@@ -643,8 +650,10 @@ body.create-active #finishButton[hidden]{display:none!important}
 </div>
 
 <div class="controls" id="editorControls">
-    <button id="editorStepBack" type="button">← Back to tools</button>
-    
+    <div class="editor-substep-header" id="editorSubstepHeader" hidden>
+      <button id="editorStepBack" class="editor-back-arrow" type="button" aria-label="Back to tools">&lt;</button>
+      <h3 id="editorSubstepTitle">Outer Bound</h3>
+    </div>
     <div class="bound-step-buttons">
       <button class="outer-btn" id="newOuterButton">Outer Bound</button>
       <button class="inner-btn" id="newInnerButton">Inner Bound</button>
@@ -869,38 +878,48 @@ body.create-active #finishButton[hidden]{display:none!important}
     function setEditorStep(step) {
         createPanelElement.classList.remove("step-outer","step-inner","step-coordinates","step-clear");
         if (step) createPanelElement.classList.add("step-" + step);
-        if (step === "coordinates") {
-            document.getElementById("coordinatesPanel").hidden = false;
-            updateCoordinates();
-        }
-        if (step === "clear") document.getElementById("clearStepOptions").hidden = false;
+        const header = document.getElementById("editorSubstepHeader");
+        const title = document.getElementById("editorSubstepTitle");
+        header.hidden = !step;
+        const titles = {outer:"Outer Bound",inner:"Inner Bound",coordinates:"Coordinates",clear:"Clear"};
+        title.textContent = titles[step] || "";
+        document.getElementById("coordinatesPanel").hidden = step !== "coordinates";
+        document.getElementById("clearStepOptions").hidden = step !== "clear";
+        document.getElementById("toggleCoordinatesButton").setAttribute("aria-expanded",String(step === "coordinates"));
+        document.getElementById("toggleClearButton").setAttribute("aria-expanded",String(step === "clear"));
+        if (step === "coordinates") updateCoordinates();
+        updateBoundPointList();
+    }
+    function discardActiveBound() {
+        if (!currentBound) return;
+        const bound = currentBound;
+        bound.markers.forEach(marker => { if (map.hasLayer(marker)) map.removeLayer(marker); });
+        if (bound.polygon && map.hasLayer(bound.polygon)) map.removeLayer(bound.polygon);
+        const list = bound.type === "outer" ? outerBounds : innerBounds;
+        const index = list.indexOf(bound);
+        if (index >= 0) list.splice(index,1);
+        currentBound = null;
+        currentType = null;
+        updateCoordinates();
+        updateBoundPointList();
+        updateStatus();
     }
     document.getElementById("editorStepBack").addEventListener("click", () => {
+        const activeBoundStep = createPanelElement.classList.contains("step-outer") || createPanelElement.classList.contains("step-inner");
+        if (activeBoundStep && currentBound && !currentBound.finished) {
+            const discard = window.confirm("Are you sure you want to go back? This bound will not be saved.\n\nChoose OK to discard its pins and return to the Create Track tools, or Cancel to keep working on this bound.");
+            if (!discard) return;
+            discardActiveBound();
+        }
         setEditorStep(null);
-        document.getElementById("coordinatesPanel").hidden = true;
-        document.getElementById("clearStepOptions").hidden = true;
-        document.getElementById("toggleCoordinatesButton").textContent = "Show Coordinates";
-        document.getElementById("toggleClearButton").textContent = "Clear";
+        updateStatus();
     });
     document.getElementById("newOuterButton").addEventListener("click", () => setEditorStep("outer"));
     document.getElementById("newInnerButton").addEventListener("click", () => setEditorStep("inner"));
     document.getElementById("toggleCoordinatesButton").addEventListener("click", () => setEditorStep("coordinates"));
     document.getElementById("toggleClearButton").addEventListener("click", () => setEditorStep("clear"));
 
-    document.getElementById("toggleCoordinatesButton").addEventListener("click", function () {
-        const panel = document.getElementById("coordinatesPanel");
-        const open = panel.hidden;
-        panel.hidden = !open;
-        this.textContent = open ? "Hide Coordinates" : "Show Coordinates";
-        this.setAttribute("aria-expanded", String(open));
-    });
-    document.getElementById("toggleClearButton").addEventListener("click", function () {
-        const options = document.getElementById("clearStepOptions");
-        const open = options.hidden;
-        options.hidden = !open;
-        this.setAttribute("aria-expanded", String(open));
-        this.textContent = open ? "Close Clear" : "Clear";
-    });
+
 
     function updateStatus() {
         const status = document.getElementById("status");
