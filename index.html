@@ -1343,6 +1343,12 @@ body.create-active #finishButton[hidden]{display:none!important}
                 "Getting your location...";
 
 
+            if (!window.isSecureContext) {
+                showToast("Location access requires a secure HTTPS connection. Open the deployed GitHub Pages website.");
+                updateStatus();
+                return;
+            }
+
             navigator.geolocation.getCurrentPosition(
 
                 function (position) {
@@ -1373,20 +1379,21 @@ body.create-active #finishButton[hidden]{display:none!important}
 
                     console.error(error);
 
-                    showToast(
-                        "Could not get your location.\n\n" +
-                        "Make sure location permission is enabled " +
-                        "for this website."
-                    );
+                    const reason = error.code === 1
+                        ? "Allow location access for this website in your browser settings."
+                        : error.code === 2
+                            ? "Your laptop could not determine its location. Check that Wi-Fi and location services are enabled."
+                            : "The location request timed out. Please try again.";
+                    showToast("Could not get your location. " + reason, "error");
 
                     updateStatus();
                 },
 
 
                 {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+                    enableHighAccuracy: false,
+                    timeout: 20000,
+                    maximumAge: 60000
                 }
             );
         });
@@ -2430,8 +2437,9 @@ body.create-active #finishButton[hidden]{display:none!important}
             let paddingTopLeft = [28, 28];
             let paddingBottomRight = [28, 28];
             if (window.matchMedia("(max-width: 700px)").matches) {
-                const bottomObstruction = Math.max(0, mapRect.bottom - sidebarRect.top);
-                paddingBottomRight = [24, bottomObstruction + 24];
+                const topObstruction = Math.max(0, sidebarRect.bottom - mapRect.top);
+                paddingTopLeft = [24, topObstruction + 24];
+                paddingBottomRight = [24, 24];
             } else {
                 const leftObstruction = Math.max(0, sidebarRect.right - mapRect.left);
                 paddingTopLeft = [leftObstruction + 24, 28];
@@ -2554,3 +2562,24 @@ body.create-active #finishButton[hidden]{display:none!important}
 
 </body>
 </html>
+
+<style>
+/* Mobile: compact top toolbar, with map controls grouped at bottom-right. */
+@media (max-width:700px){
+  .workspace-sidebar{top:8px!important;bottom:auto!important;left:8px!important;right:8px!important;max-height:34dvh!important;overflow-y:auto!important;padding:8px!important;border-radius:14px!important}
+  .sidebar-topline{padding-bottom:5px!important}
+  .sidebar-topline .back-menu-button{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}
+  .sidebar-topline h2{font-size:16px!important}
+  #createPanel .controls{gap:5px!important;padding:7px!important}
+  #createPanel .controls button,.load-actions button{min-height:34px!important;padding:7px 9px!important;font-size:12px!important}
+  #createPanel .track-buttons{padding:5px!important}
+  .saved-track-list{max-height:12dvh!important;overflow-y:auto!important}
+  .load-actions{gap:5px!important}
+  .panel-help,.panel-note{font-size:10px!important;margin:4px 0!important}
+  .map-pin-toggle{top:auto!important;bottom:14px!important;right:14px!important;width:40px!important;height:40px!important;min-height:40px!important;border-radius:12px!important}
+  .pin-symbol{font-size:19px!important}
+  .map-location-button{top:auto!important;bottom:64px!important;right:14px!important;width:40px!important;height:40px!important;min-height:40px!important;border-radius:12px!important;font-size:22px!important}
+  #locationButton svg{width:22px;height:22px}
+  .map-finish-button{top:auto!important;bottom:14px!important;right:62px!important;min-height:40px!important}
+}
+</style>
