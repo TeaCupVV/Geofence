@@ -2375,6 +2375,7 @@ body.create-active #finishButton[hidden]{display:none!important}
         });
         updateLoadActions();
         if (selectedSavedTrackId === null) clearTrackPreview();
+        else previewSelectedTrack();
     }
 
     function updateLoadActions() {
