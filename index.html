@@ -2621,3 +2621,49 @@ body.create-active #finishButton[hidden]{display:none!important}
   #locationButton svg{width:22px!important;height:22px!important}
 }
 </style>
+
+<style>
+/* Mobile toolbar uses a consistent compact footprint; controls are evenly spaced. */
+@media (max-width:700px){
+  #workspaceSidebar{
+    box-sizing:border-box!important;
+    top:calc(8px + env(safe-area-inset-top, 0px))!important;
+    bottom:auto!important;
+    height:min(350px, 42dvh)!important;
+    max-height:min(350px, 42dvh)!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    padding:12px!important;
+    gap:10px!important;
+  }
+  #workspaceSidebar .sidebar-topline{
+    flex:0 0 auto!important;
+    min-height:48px!important;
+    padding:0 0 9px!important;
+    margin:0!important;
+  }
+  #workspaceSidebar .sidebar-topline h2{font-size:17px!important}
+  #workspaceSidebar .sidebar-topline .back-menu-button{
+    width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;
+  }
+  #finishTrackButton{min-height:38px!important;padding:6px 10px!important;font-size:12px!important}
+  #createPanel .track-buttons{display:none!important}
+  #createPanel .controls{
+    display:flex!important;flex-direction:column!important;
+    flex:0 0 auto!important;gap:10px!important;padding:0!important;
+  }
+  #createPanel .bound-step-buttons,#createPanel .utility-step-buttons{
+    display:flex!important;flex-direction:column!important;gap:10px!important;
+    width:100%!important;
+  }
+  #createPanel .controls button{
+    box-sizing:border-box!important;width:100%!important;
+    min-height:46px!important;height:46px!important;
+    padding:8px 12px!important;font-size:13px!important;line-height:1.2!important;
+  }
+  #createPanel.step-outer .bound-step-buttons,#createPanel.step-inner .bound-step-buttons{display:none!important}
+  #createPanel.step-outer .utility-step-buttons,#createPanel.step-inner .utility-step-buttons{display:none!important}
+  #boundPointsList{max-height:150px!important;overflow-y:auto!important}
+  #workspaceSidebar .load-panel{min-height:0!important;overflow-y:auto!important}
+}
+</style>
