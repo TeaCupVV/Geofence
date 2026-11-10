@@ -2583,3 +2583,11 @@ body.create-active #finishButton[hidden]{display:none!important}
   .map-finish-button{top:auto!important;bottom:14px!important;right:62px!important;min-height:40px!important}
 }
 </style>
+
+<style>
+/* Keep map action buttons pinned to the phone viewport, independent of the top toolbar. */
+@media (max-width:700px){
+  #toggleButton.map-pin-toggle{position:fixed!important;top:auto!important;right:14px!important;bottom:calc(14px + env(safe-area-inset-bottom, 0px))!important;left:auto!important;z-index:2200!important}
+  #locationButton.map-location-button{position:fixed!important;top:auto!important;right:14px!important;bottom:calc(62px + env(safe-area-inset-bottom, 0px))!important;left:auto!important;z-index:2201!important}
+}
+</style>
