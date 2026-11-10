@@ -2591,3 +2591,33 @@ body.create-active #finishButton[hidden]{display:none!important}
   #locationButton.map-location-button{position:fixed!important;top:auto!important;right:14px!important;bottom:calc(62px + env(safe-area-inset-bottom, 0px))!important;left:auto!important;z-index:2201!important}
 }
 </style>
+
+<style>
+/* Correct mobile layout: compact editor at the top; map controls at viewport bottom-right. */
+@media (max-width:700px){
+  #workspaceSidebar{
+    top:calc(8px + env(safe-area-inset-top, 0px))!important;
+    bottom:auto!important;
+    left:8px!important;right:8px!important;width:auto!important;
+    max-height:34dvh!important;overflow-y:auto!important;
+    padding:9px!important;border-radius:16px!important;
+  }
+  #createPanel .controls{gap:5px!important;padding:6px!important}
+  #createPanel .controls button,#finishTrackButton{
+    min-height:38px!important;padding:7px 10px!important;font-size:13px!important;
+  }
+  #toggleButton.map-pin-toggle{
+    position:absolute!important;top:auto!important;right:14px!important;
+    bottom:calc(14px + env(safe-area-inset-bottom, 0px))!important;
+    left:auto!important;width:42px!important;height:42px!important;
+    min-height:42px!important;z-index:2300!important;
+  }
+  #locationButton.map-location-button{
+    position:absolute!important;top:auto!important;right:14px!important;
+    bottom:calc(64px + env(safe-area-inset-bottom, 0px))!important;
+    left:auto!important;width:42px!important;height:42px!important;
+    min-height:42px!important;z-index:2301!important;
+  }
+  #locationButton svg{width:22px!important;height:22px!important}
+}
+</style>
