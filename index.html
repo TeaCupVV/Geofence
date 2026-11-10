@@ -2480,10 +2480,32 @@ body.create-active #finishButton[hidden]{display:none!important}
     loadSelectedTrackButton.addEventListener("click", loadSelectedTrackIntoEditor);
     sendSelectedTrackButton.addEventListener("click", async () => {
         const track = getSelectedSavedTrack();
-        if (!track) return;
+        if (!track || !db) return;
         if (!window.confirm('Send "' + track.name + '" to the car? This will replace the active course.')) return;
-        loadSelectedTrackIntoEditor();
-        document.getElementById("activateTrackButton").click();
+
+        sendSelectedTrackButton.disabled = true;
+        trackStatus.textContent = "Sending to car...";
+        const { error } = await db
+            .from("active_track")
+            .update({
+                name: track.name || "Unsaved track",
+                outer_bound: track.outer_bound || [],
+                inner_bound: track.inner_bound || []
+            })
+            .eq("id", 1);
+
+        if (error) {
+            showToast("Could not send to the car: " + error.message, "error");
+            await showActiveTrack();
+            updateLoadActions();
+            return;
+        }
+
+        await showActiveTrack();
+        clearTrackPreview();
+        selectedSavedTrackId = null;
+        renderSavedTrackPanel();
+        showToast('"' + track.name + '" sent to the car. Choose another track when ready.', "success");
     });
 
     // Keep map dimensions correct when the browser rotates or resizes.
