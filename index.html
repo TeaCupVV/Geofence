@@ -2667,3 +2667,34 @@ body.create-active #finishButton[hidden]{display:none!important}
   #workspaceSidebar .load-panel{min-height:0!important;overflow-y:auto!important}
 }
 </style>
+
+<style>
+@media (max-width:700px){
+  /* Shorter, fixed-height toolbar; content scrolls inside when necessary. */
+  #workspaceSidebar{
+    height:min(260px, 34dvh)!important;
+    max-height:min(260px, 34dvh)!important;
+    padding:9px!important;
+    gap:7px!important;
+  }
+  #workspaceSidebar .sidebar-topline{min-height:40px!important;padding-bottom:6px!important}
+  #workspaceSidebar .sidebar-topline h2{font-size:16px!important}
+  #workspaceSidebar .sidebar-topline .back-menu-button{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}
+  #finishTrackButton{min-height:34px!important;padding:5px 8px!important;font-size:11px!important}
+  #createPanel .controls,#createPanel .bound-step-buttons,#createPanel .utility-step-buttons{gap:7px!important}
+  #createPanel .controls button{height:39px!important;min-height:39px!important;padding:6px 9px!important;font-size:12px!important}
+  /* These map controls are fixed to the viewport, not placed inside the toolbar. */
+  #toggleButton.map-pin-toggle{
+    position:fixed!important;top:auto!important;left:auto!important;
+    right:14px!important;bottom:calc(16px + env(safe-area-inset-bottom, 0px))!important;
+    width:42px!important;height:42px!important;min-height:42px!important;
+    z-index:4000!important;
+  }
+  #locationButton.map-location-button{
+    position:fixed!important;top:auto!important;left:auto!important;
+    right:14px!important;bottom:calc(66px + env(safe-area-inset-bottom, 0px))!important;
+    width:42px!important;height:42px!important;min-height:42px!important;
+    z-index:4001!important;
+  }
+}
+</style>
