@@ -1359,7 +1359,9 @@ body.create-active #finishButton[hidden]{display:none!important}
                 weight: 3,
                 fillRule: "evenodd"
             });
-            const outerOutline = L.polyline(points, {
+            // Leaflet polylines do not automatically close a loop.
+            const closedOuterPoints = [...points, points[0]];
+            const outerOutline = L.polyline(closedOuterPoints, {
                 color: "#1976d2",
                 weight: 3
             });
@@ -1377,7 +1379,9 @@ body.create-active #finishButton[hidden]{display:none!important}
             // the map or the transparent hole in the outer blue area.
             // Use a polyline rather than a polygon: a polyline cannot create
             // an interior fill, so the map remains visible inside the boundary.
-            bound.polygon = L.polyline(points, {
+            // Explicitly connect the final pin back to the first pin.
+            const closedInnerPoints = [...points, points[0]];
+            bound.polygon = L.polyline(closedInnerPoints, {
                 color: "#ef6c00",
                 weight: 3
             }).addTo(map);
@@ -2543,7 +2547,8 @@ body.create-active #finishButton[hidden]{display:none!important}
                 fillOpacity:.12,
                 fillRule:"evenodd"
             }).addTo(map));
-            previewLayers.push(L.polyline(track.outer_bound, {
+            const closedPreviewOuter = [...track.outer_bound, track.outer_bound[0]];
+            previewLayers.push(L.polyline(closedPreviewOuter, {
                 color:"#55a7ff",
                 weight:4,
                 dashArray:"8 6"
@@ -2553,7 +2558,8 @@ body.create-active #finishButton[hidden]{display:none!important}
             // Outline only: the inner area should show the map beneath it.
             // An inner boundary is only an outline. A polyline has no fill
             // behavior at all, avoiding any orange tint inside the boundary.
-            previewLayers.push(L.polyline(track.inner_bound, {
+            const closedPreviewInner = [...track.inner_bound, track.inner_bound[0]];
+            previewLayers.push(L.polyline(closedPreviewInner, {
                 color:"#ef6c00",
                 weight:4,
                 dashArray:"8 6"
