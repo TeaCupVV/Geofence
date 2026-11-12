@@ -1364,6 +1364,14 @@ body.create-active #finishButton[hidden]{display:none!important}
                 weight: 3
             });
             bound.polygon = L.featureGroup([areaFill, outerOutline]).addTo(map);
+
+            // Redrawing the outer fill can place it above the inner outlines.
+            // Bring every inner outline back to the front after the fill layer.
+            innerBounds.forEach(inner => {
+                if (inner.polygon && map.hasLayer(inner.polygon) && inner.polygon.bringToFront) {
+                    inner.polygon.bringToFront();
+                }
+            });
         } else {
             // Keep the inner boundary's orange outline, but do not paint over
             // the map or the transparent hole in the outer blue area.
