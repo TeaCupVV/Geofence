@@ -2762,3 +2762,24 @@ body.create-active #finishButton[hidden]{display:none!important}
   }
 }
 </style>
+
+<style>
+/* Desktop boundary pin list stays within the sidebar and scrolls independently. */
+@media (min-width:701px){
+  #workspaceSidebar{min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain}
+  #boundPointsList:not([hidden]){
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:6px!important;
+    max-height:220px!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain!important;
+    scrollbar-gutter:stable!important;
+    padding:9px!important;
+  }
+  #boundPointsList .bound-point-row{min-width:0!important;max-width:100%!important}
+  #boundPointsList .bound-point-row small{overflow:hidden!important;text-overflow:ellipsis!important}
+}
+</style>
