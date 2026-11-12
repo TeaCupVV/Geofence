@@ -2728,3 +2728,37 @@ body.create-active #finishButton[hidden]{display:none!important}
   }
 }
 </style>
+
+<style>
+/* Give the mobile Load Track selector more room without enlarging Create Track. */
+@media (max-width:700px){
+  body.load-active #workspaceSidebar{
+    height:min(440px, 54dvh)!important;
+    max-height:min(440px, 54dvh)!important;
+  }
+  body.load-active #workspaceSidebar #loadPanel:not([hidden]){
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    gap:10px!important;
+  }
+  body.load-active #workspaceSidebar #loadPanel .panel-help,
+  body.load-active #workspaceSidebar #loadPanel .panel-note{
+    font-size:12px!important;
+    line-height:1.35!important;
+    margin:2px 0!important;
+  }
+  body.load-active #workspaceSidebar #loadPanel .saved-track-list{
+    flex:1 1 auto!important;
+    min-height:100px!important;
+    max-height:190px!important;
+    overflow-y:auto!important;
+  }
+  body.load-active #workspaceSidebar #loadPanel .load-actions{gap:8px!important}
+  body.load-active #workspaceSidebar #loadPanel .load-actions button{
+    min-height:40px!important;
+    padding:8px 10px!important;
+    font-size:12px!important;
+  }
+}
+</style>
