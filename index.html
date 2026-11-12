@@ -963,9 +963,10 @@ body.create-active #finishButton[hidden]{display:none!important}
 
         outerButton.classList.toggle("active-step", currentType === "outer" && !!currentBound && !currentBound.finished);
         innerButton.classList.toggle("active-step", currentType === "inner" && !!currentBound && !currentBound.finished);
+        const inBoundEditor = createPanelElement.classList.contains("step-outer") || createPanelElement.classList.contains("step-inner");
         finishButton.textContent = "Finish Bound";
-        finishButton.hidden = !currentBound || currentBound.finished || !(createPanelElement.classList.contains("step-outer") || createPanelElement.classList.contains("step-inner"));
-        locationButton.hidden = !currentBound || currentBound.finished;
+        finishButton.hidden = !currentBound || currentBound.finished || !inBoundEditor;
+        locationButton.hidden = !currentBound || currentBound.finished || !inBoundEditor;
         updateBoundPointList();
 
         if (!currentBound) {
@@ -2061,6 +2062,9 @@ body.create-active #finishButton[hidden]{display:none!important}
 
         loadBound("outer", track.outer_bound);
         loadBound("inner", track.inner_bound);
+        setEditorStep(null);
+        currentBound = null;
+        currentType = null;
 
         currentTrackName = track.name;
 
@@ -2526,6 +2530,9 @@ body.create-active #finishButton[hidden]{display:none!important}
         clearAllBounds();
         loadBound("outer", track.outer_bound || []);
         loadBound("inner", track.inner_bound || []);
+        setEditorStep(null);
+        currentBound = null;
+        currentType = null;
         currentTrackName = track.name;
         const allBounds = outerBounds.concat(innerBounds).filter(b => b.polygon);
         if (allBounds.length) map.fitBounds(L.featureGroup(allBounds.map(b => b.polygon)).getBounds(), {padding:[30,30]});
