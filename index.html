@@ -1359,10 +1359,10 @@ body.create-active #finishButton[hidden]{display:none!important}
         } else {
             // Keep the inner boundary's orange outline, but do not paint over
             // the map or the transparent hole in the outer blue area.
-            bound.polygon = L.polygon(points, {
+            // Use a polyline rather than a polygon: a polyline cannot create
+            // an interior fill, so the map remains visible inside the boundary.
+            bound.polygon = L.polyline(points, {
                 color: "#ef6c00",
-                fillColor: "#ef6c00",
-                fillOpacity: 0,
                 weight: 3
             }).addTo(map);
 
@@ -2528,10 +2528,11 @@ body.create-active #finishButton[hidden]{display:none!important}
         }
         if (track.inner_bound?.length) {
             // Outline only: the inner area should show the map beneath it.
-            previewLayers.push(L.polygon(track.inner_bound, {
+            // An inner boundary is only an outline. A polyline has no fill
+            // behavior at all, avoiding any orange tint inside the boundary.
+            previewLayers.push(L.polyline(track.inner_bound, {
                 color:"#ff9b4a",
                 weight:4,
-                fillOpacity:0,
                 dashArray:"8 6"
             }).addTo(map));
         }
