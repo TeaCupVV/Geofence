@@ -2698,3 +2698,33 @@ body.create-active #finishButton[hidden]{display:none!important}
   }
 }
 </style>
+
+<style>
+/* Ensure the Load Track panel respects its hidden state and fills the mobile sidebar. */
+#loadPanel[hidden],#createPanel[hidden]{display:none!important}
+@media (max-width:700px){
+  #workspaceSidebar #loadPanel:not([hidden]){
+    display:flex!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+    width:100%!important;
+    overflow-y:auto!important;
+    gap:8px!important;
+  }
+  #workspaceSidebar #loadPanel .saved-track-list{
+    min-height:48px!important;
+    max-height:90px!important;
+    overflow-y:auto!important;
+  }
+  #workspaceSidebar #loadPanel .load-actions{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:6px!important;
+  }
+  #workspaceSidebar #loadPanel .load-actions button{
+    min-height:34px!important;
+    padding:6px 8px!important;
+    font-size:11px!important;
+  }
+}
+</style>
