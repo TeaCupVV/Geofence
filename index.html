@@ -990,7 +990,48 @@ body.create-active #finishButton[hidden]{display:none!important}
                 const row = document.createElement("div");
                 row.className = "bound-point-row";
                 const label = document.createElement("small");
-                label.textContent = "Pin " + (index + 1) + ": " + position.lat.toFixed(5) + ", " + position.lng.toFixed(5);
+                label.textContent = "Pin " + (index + 1);
+                row.appendChild(label);
+
+                if (isBoundEditor) {
+                    const makeCoordinateInput = (value, axis) => {
+                        const input = document.createElement("input");
+                        input.type = "number";
+                        input.step = "0.00001";
+                        input.value = value.toFixed(6);
+                        input.setAttribute("aria-label", "Pin " + (index + 1) + " " + axis + " coordinate");
+                        input.title = axis === "Latitude" ? "Latitude (-90 to 90)" : "Longitude (-180 to 180)";
+                        input.className = "pin-coordinate-input";
+                        input.addEventListener("change", () => {
+                            const nextValue = Number(input.value);
+                            const validRange = axis === "Latitude"
+                                ? Number.isFinite(nextValue) && nextValue >= -90 && nextValue <= 90
+                                : Number.isFinite(nextValue) && nextValue >= -180 && nextValue <= 180;
+                            if (!validRange) {
+                                showToast(axis + " must be between " + (axis === "Latitude" ? "-90 and 90." : "-180 and 180."), "error");
+                                input.value = (axis === "Latitude" ? marker.getLatLng().lat : marker.getLatLng().lng).toFixed(6);
+                                return;
+                            }
+                            const currentPosition = marker.getLatLng();
+                            const nextLat = axis === "Latitude" ? nextValue : currentPosition.lat;
+                            const nextLng = axis === "Longitude" ? nextValue : currentPosition.lng;
+                            marker.setLatLng([nextLat, nextLng]);
+                            drawPolygon(bound);
+                            updateCoordinates();
+                            updateBoundPointList();
+                        });
+                        return input;
+                    };
+                    row.append(
+                        makeCoordinateInput(position.lat, "Latitude"),
+                        makeCoordinateInput(position.lng, "Longitude")
+                    );
+                } else {
+                    const coordinates = document.createElement("small");
+                    coordinates.textContent = position.lat.toFixed(5) + ", " + position.lng.toFixed(5);
+                    row.appendChild(coordinates);
+                }
+
                 const remove = document.createElement("button");
                 remove.type = "button";
                 remove.className = "bound-point-remove";
@@ -2782,4 +2823,14 @@ body.create-active #finishButton[hidden]{display:none!important}
   #boundPointsList .bound-point-row{min-width:0!important;max-width:100%!important}
   #boundPointsList .bound-point-row small{overflow:hidden!important;text-overflow:ellipsis!important}
 }
+</style>
+
+<style>
+.bound-point-row .pin-coordinate-input{
+  box-sizing:border-box!important;width:94px!important;min-width:0!important;
+  height:28px!important;min-height:28px!important;padding:3px 5px!important;
+  border:1px solid #405875!important;border-radius:6px!important;
+  background:#101f32!important;color:#e5efff!important;font-size:11px!important;
+}
+@media(max-width:700px){.bound-point-row .pin-coordinate-input{width:78px!important;font-size:10px!important}}
 </style>
